@@ -5,6 +5,7 @@
 #include "Utils.h"
 #include "Timer.h"
 #include "DeviceManager.h"
+#include "SecondsCounter.h"
 
 #include <string>
 #include <unistd.h>
@@ -41,7 +42,7 @@ class ChairManager
     DeviceManager *_deviceManager;
 
     int _updateDevicesCounter = 0;
-    uint32_t _secondsCounter = 0;
+    SecondsCounter _secondsCounter;
     uint8_t _state = 0;
 
     int _currentChairAngle = 0;
@@ -59,7 +60,7 @@ class ChairManager
     bool _isVibrationsActivated = true;
     bool _isIMUCalibrationChanged = false;
     bool _isPressureMatCalibrationChanged = false;
-    
+
     int _requiredBackRestAngle = 0;
     uint32_t _requiredPeriod = 0;
     uint32_t _requiredDuration = 0;
