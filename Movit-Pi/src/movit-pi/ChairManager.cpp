@@ -18,6 +18,7 @@ enum State
 {
     INITIAL = 1,
     WAIT,
+    SNOOZE,
     CLIMB,
     STAY,
     DESCEND,
@@ -224,6 +225,11 @@ void ChairManager::ReadFromServer()
         _isWifiChanged = true;
         _wifiChangedTimer.Reset();
     }
+    if (_mosquittoBroker->IsSnoozeTimeNew())
+    {
+        _snoozeTime = _mosquittoBroker->GetSnoozeTime();
+        printf("Something new for _snoozeTime = %f\n", _snoozeTime);
+    }
     _deviceManager->GetAlarm()->DeactivateVibration(_mosquittoBroker->IsVibrationDeactivated());
 }
 
@@ -245,19 +251,22 @@ void ChairManager::CheckNotification()
 
     switch (_state)
     {
-    case 1:
+    case State::INITIAL:
         CheckIfUserHasBeenSittingForRequiredTime();
         break;
-    case 2:
+    case State::WAIT:
         CheckIfBackRestIsRequired();
         break;
-    case 3:
+    case State::SNOOZE:
+        NotificationSnoozed();
+        break;
+    case State::CLIMB:
         CheckIfRequiredBackSeatAngleIsReached();
         break;
-    case 4:
+    case State::STAY:
         CheckIfRequiredBackSeatAngleIsMaintained();
         break;
-    case 5:
+    case State::DESCEND:
         CheckIfBackSeatIsBackToInitialPosition();
         break;
     default:
@@ -273,6 +282,18 @@ void ChairManager::CheckIfUserHasBeenSittingForRequiredTime()
     {
         _state = State::WAIT;
         _secondsCounter = 0;
+    }
+}
+void ChairManager::NotificationSnoozed()
+{
+    _secondsCounter++;
+
+    printf("State SNOOZED\t_secondsCounter: %f\n", _secondsCounter.Value());
+
+    if (_secondsCounter >= _snoozeTime)
+    {
+        _secondsCounter = 0;
+        _state = State::WAIT;
     }
 }
 
@@ -331,6 +352,15 @@ void ChairManager::CheckIfRequiredBackSeatAngleIsReached()
         _alarm->StopBlinkRedAlarm();
         _alarm->TurnOnRedLed();
         _mosquittoBroker->SendTiltInfo(TiltInfo::TOO_LOW, _currentDatetime);
+    }
+
+    if (_alarm->ButtonPressed())
+    {
+        printf("Notification snoozed\n");
+        _state = State::SNOOZE;
+        _secondsCounter = 0;
+        _alarm->TurnOffAlarm();
+        _mosquittoBroker->SendTiltInfo(TiltInfo::SNOOZED, _currentDatetime);
     }
 
     if (_currentChairAngle > _requiredBackRestAngle)

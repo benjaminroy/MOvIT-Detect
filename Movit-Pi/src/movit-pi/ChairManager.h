@@ -47,6 +47,7 @@ class ChairManager
 
     int _currentChairAngle = 0;
     int _prevChairAngle = 0;
+    float _snoozeTime = 0.0f;
     Coord_t _copCoord;
     std::string _currentDatetime = "";
 
@@ -73,6 +74,7 @@ class ChairManager
 
     void CheckIfUserHasBeenSittingForRequiredTime();
     void CheckIfBackRestIsRequired();
+    void NotificationSnoozed();
     void CheckIfRequiredBackSeatAngleIsReached();
     void CheckIfRequiredBackSeatAngleIsMaintained();
     void CheckIfBackSeatIsBackToInitialPosition();
