@@ -495,4 +495,3 @@ bool DeviceManager::TestDevices()
 
     return false;
 }
-}
