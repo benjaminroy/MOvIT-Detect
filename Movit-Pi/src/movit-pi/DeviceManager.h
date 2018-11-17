@@ -23,6 +23,8 @@ class DeviceManager
     // Called periodicaly to update all the data
     void Update();
 
+    bool TestDevices();
+
     Alarm *GetAlarm() { return &_alarm; }
     MobileImu *GetMobileImu() { return _mobileImu; }
     FixedImu *GetFixedImu() { return _fixedImu; }

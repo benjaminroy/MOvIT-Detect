@@ -46,24 +46,35 @@ int main(int argc, char *argv[])
     auto period = milliseconds(1000);
 
     chairManager.ReadVibrationsThread().detach();
+    bool done = false;
 
-    while (true)
+    if (argc > 1 && std::string(argv[1]) == "-t")
     {
-        start = std::chrono::system_clock::now();
-
-        chairManager.UpdateDevices();
-        chairManager.ReadFromServer();
-        chairManager.CheckNotification();
-
-        end = std::chrono::system_clock::now();
-        auto elapse_time = std::chrono::duration_cast<milliseconds>(end - start);
-
-        if (elapse_time.count() >= period.count())
+        while (!done)
         {
-            elapse_time = period;
+            done = deviceManager->TestDevices();
         }
+    }
+    else
+    {
+        while (true)
+        {
+            start = std::chrono::system_clock::now();
 
-        sleep_for_milliseconds(period.count() - elapse_time.count());
+            chairManager.UpdateDevices();
+            chairManager.ReadFromServer();
+            chairManager.CheckNotification();
+
+            end = std::chrono::system_clock::now();
+            auto elapse_time = std::chrono::duration_cast<milliseconds>(end - start);
+
+            if (elapse_time.count() >= period.count())
+            {
+                elapse_time = period;
+            }
+
+            sleep_for_milliseconds(period.count() - elapse_time.count());
+        }
     }
 
     chairManager.SetVibrationsActivated(false);
