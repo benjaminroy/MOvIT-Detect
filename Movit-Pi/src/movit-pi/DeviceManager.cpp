@@ -288,7 +288,7 @@ bool DeviceManager::TestDevices()
         uint16_t sensedPresence = 0;
         for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
         {
-            sensedPresence += _sensorMatrix.GetAnalogData(i);
+            sensedPresence += static_cast<float>(_forceSensor->GetAnalogData(i));
         }
         if (PRESSURE_SENSOR_COUNT != 0)
         {
@@ -298,7 +298,8 @@ bool DeviceManager::TestDevices()
         printf("Sensor Number \t Analog value \t Voltage (mV) \t Force (N) \n");
         for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
         {
-            printf("Sensor No: %i \t %i \t\t %u \t\t %f \n", i + 1, _sensorMatrix.GetAnalogData(i), _sensorMatrix.GetVoltageData(i), _sensorMatrix.GetForceData(i));
+            printf("Sensor No: %i \t %i \t\t %u \t\t %f \n", i + 1,
+            static_cast<float>(_forceSensor->GetAnalogData(i));
         }
         printf(".-.--..---.-.-.--.--.--.---.--.-\n");
       }
