@@ -20,7 +20,6 @@ public:
   bool operator>=(const double &value);
   bool operator==(const double &value);
 
-
 private:
   double _counterValue = 0;
   double _runningFrequency = 1; // default frequency
