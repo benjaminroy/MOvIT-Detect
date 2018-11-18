@@ -246,24 +246,88 @@ double DeviceManager::GetXAcceleration()
 bool DeviceManager::TestDevices()
 {
     printf("\n.-.--..--- TEST MENU .--.---.--.-\n");
-    printf("Select one of the following options.\n");
+    // printf("\n\nFunction testing :");
+    // printf("\n\tTestID\tDescription");
+    //--------------------------------------------------------------------------
+    // MODULE : Raspberry Pi Header
+    // PCB Validation tests:
+    // 1
+    // 2
+    // 3
+    // Functionnal tests:
+    // 1
+    // 2
+    //--------------------------------------------------------------------------
+    // MODULE : Pressure Sensor
+    // PCB Validation tests:
+    printf("\n\t 1 \t Force sensors (ADC) validation");
+    // Functionnal tests:
+    printf("\n\t 2 \t Force sensors calibration validation");
+    printf("\n\t 3 \t Force plates validation");
+    printf("\n\t 4 \t Centers of pressure validation");
+    //--------------------------------------------------------------------------
+    printf("\n");
+    printf("\nEnter a Test No. and press the return key to run test\n");
 
-    printf("\n\nFunction testing :");
-    printf("\n\tTestID\tDescription");
-    printf("\n\t a \t Activate GREEN LED on notification module");
-    printf("\n\t b \t Activate RED LED on notification module");
-    printf("\n\t c \t Activate DC Motor on notification module");
-    printf("\n\t d \t Activate blink leds alarm.");
-    printf("\n\t e \t Activate red alarm.");
-    //printf("\n\t f \t Activate force sensors calibration");
-    //printf("\n\t g \t Check force sensors centers of pressure");
-    printf("\n\t h \t De-activate all R&G LED + DC Motor");
-    printf("\n\t i \t Activate IMU calibration");
-    //printf("\n\t j \t Detect relative pressure in quadrants");
-    printf("\n\t k \t Print date and time");
-    printf("\n\t q \t Close program");
+    char testNoID = getchar();
+    getchar(); // To consume '\n'
+    switch(testNoID)
+    {
+      case 1:
+      {
+        printf("\nTEST: case 1\n");
+      }
+      case 2:
+      {
+        printf("\nTEST: case 2\n");
+      }
+      case 3:
+      {
+        printf("\nTEST: case 3\n");
 
-    printf("\n\nType in TestID then press the return key\n");
+        uint16_t sensedPresence = 0;
+        for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+        {
+            sensedPresence += _sensorMatrix.GetAnalogData(i);
+        }
+        if (PRESSURE_SENSOR_COUNT != 0)
+        {
+            sensedPresence /= PRESSURE_SENSOR_COUNT;
+        }
+        printf("\n.-.--..---MESURE DES CAPTEURS DE FORCE--.---.--.-\n");
+        printf("Sensor Number \t Analog value \t Voltage (mV) \t Force (N) \n");
+        for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+        {
+            printf("Sensor No: %i \t %i \t\t %u \t\t %f \n", i + 1, _sensorMatrix.GetAnalogData(i), _sensorMatrix.GetVoltageData(i), _sensorMatrix.GetForceData(i));
+        }
+        printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+      }
+      case 4:
+      {
+        printf("\nTEST: case 4\n");
+      }
+      default:
+      {
+      }
+    }
+    // if (inSerialChar == 'a')
+
+    // printf("\n\nFunction testing :");
+    // printf("\n\tTestID\tDescription");
+    // printf("\n\t a \t Activate GREEN LED on notification module");
+    // printf("\n\t b \t Activate RED LED on notification module");
+    // printf("\n\t c \t Activate DC Motor on notification module");
+    // printf("\n\t d \t Activate blink leds alarm.");
+    // printf("\n\t e \t Activate red alarm.");
+    // //printf("\n\t f \t Activate force sensors calibration");
+    // //printf("\n\t g \t Check force sensors centers of pressure");
+    // printf("\n\t h \t De-activate all R&G LED + DC Motor");
+    // printf("\n\t i \t Activate IMU calibration");
+    // //printf("\n\t j \t Detect relative pressure in quadrants");
+    // printf("\n\t k \t Print date and time");
+    // printf("\n\t q \t Close program");
+    //
+    // printf("\n\nType in TestID then press the return key\n");
     //
     // char inSerialChar = getchar();
     // getchar(); // To consume '\n'
