@@ -24,6 +24,12 @@ uint8_t BCDAdd(const uint8_t &BCDlvalue, const uint8_t &DECrvalue);
 uint8_t BCDSubstract(const uint8_t &BCDlvalue, const uint8_t &DECrvalue);
 
 
+struct Coord_t
+{
+    float x;
+    float y;
+};
+
 struct imu_offset_t
 {
     int accelerometerOffsets[NUMBER_OF_AXIS] = {0, 0, 0};
@@ -35,6 +41,12 @@ struct pressure_mat_offset_t
     uint16_t analogOffset[PRESSURE_SENSOR_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     uint32_t totalSensorMean = 0;
     float detectionThreshold = 0;
+};
+
+struct pressure_mat_data_t
+{
+    Coord_t centerOfPressure = {0.0f, 0.0f};
+    Coord_t quadrantPressure[PRESSURE_SENSOR_COUNT] = {{0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}};
 };
 
 #endif //UTILS_H
