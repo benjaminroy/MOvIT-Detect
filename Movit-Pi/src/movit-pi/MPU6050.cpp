@@ -76,6 +76,8 @@ void MPU6050::Initialize()
  */
 bool MPU6050::TestConnection()
 {
+
+                                                  printf("TestConnection\n");
     return GetDeviceID() == 0x34 || GetDeviceID() == 0x38 || GetDeviceID() == 0x39;
 }
 
@@ -924,7 +926,7 @@ void MPU6050::SetMasterClockSpeed(uint8_t speed)
  * operation, and if it is cleared, then it's a write operation. The remaining
  * bits (6-0) are the 7-bit device address of the slave device.
  *
- * In read mode, the result of the read is placed in the lowest available 
+ * In read mode, the result of the read is placed in the lowest available
  * EXT_SENS_DATA register. For further information regarding the allocation of
  * read results, please refer to the EXT_SENS_DATA register description
  * (Registers 73 - 96).
@@ -2949,7 +2951,10 @@ void MPU6050::SetFIFOByte(uint8_t data)
  */
 uint8_t MPU6050::GetDeviceID()
 {
+
+                                                printf("GetDeviceID start\n");
     I2Cdev::ReadBits(_devAddr, MPU6050_RA_WHO_AM_I, MPU6050_WHO_AM_I_BIT, MPU6050_WHO_AM_I_LENGTH, _buffer);
+                                                  printf("GetDeviceID end\n");
     return _buffer[0];
 }
 /** Set Device ID.

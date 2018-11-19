@@ -58,6 +58,7 @@ void VL53L0X::SetAddress(uint8_t new_addr)
 // mode.
 bool VL53L0X::Initialize(bool io_2v8)
 {
+                                                    printf("RangeSensorInit\n");
   // VL53L0X_DataInit() begin
   // sensor uses 1V8 mode for I/O by default; switch to 2V8 mode if necessary
   if (io_2v8)
@@ -256,7 +257,7 @@ bool VL53L0X::Initialize(bool io_2v8)
 
   // "restore the previous Sequence Config"
   WriteReg(SYSTEM_SEQUENCE_CONFIG, 0xE8);
-  
+
   return true;
 }
 
@@ -343,6 +344,7 @@ float VL53L0X::GetSignalRateLimit()
 // based on VL53L0X_set_measurement_timing_budget_micro_seconds()
 bool VL53L0X::SetMeasurementTimingBudget(uint32_t budget_us)
 {
+                                          printf("SetMeasuremTimingBudget\n");
   SequenceStepEnables enables;
   SequenceStepTimeouts timeouts;
 

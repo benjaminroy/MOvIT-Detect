@@ -13,7 +13,10 @@
 #include "MotionSensor.h"
 #include "FileManager.h"
 #include "Sensor.h"
+#include "ForceSensor.h"
+#include "MAX11611.h"
 #include "PressureMat.h"
+#include "Utils.h"
 
 class DeviceManager
 {
@@ -102,6 +105,9 @@ class DeviceManager
     FixedImu *_fixedImu;
     BackSeatAngleTracker _backSeatAngleTracker;
     PressureMat *_pressureMat;
+    MAX11611 _max11611;
+    uint16_t _max11611Data[PRESSURE_SENSOR_COUNT];
+    ForceSensor *_forceSensor;
     MotionSensor *_motionSensor;
 };
 

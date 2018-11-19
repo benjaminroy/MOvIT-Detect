@@ -4,6 +4,8 @@
 #include "MobileImu.h"
 #include "I2Cdev.h"
 #include "Utils.h"
+#include "MAX11611.h"
+#include "ForceSensor.h"
 
 #include <unistd.h>
 #include <thread>
@@ -268,28 +270,41 @@ bool DeviceManager::TestDevices()
     //--------------------------------------------------------------------------
     printf("\n");
     printf("\nEnter a Test No. and press the return key to run test\n");
-
     char testNoID = getchar();
     getchar(); // To consume '\n'
+
     switch(testNoID)
     {
-      case 1:
+      case '1':
       {
         printf("\nTEST: case 1\n");
+        break;
       }
-      case 2:
+      case '2':
       {
         printf("\nTEST: case 2\n");
+        break;
       }
-      case 3:
+      case '3':
       {
         printf("\nTEST: case 3\n");
-
-        uint16_t sensedPresence = 0;
         for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
         {
-            sensedPresence += static_cast<float>(_forceSensor->GetAnalogData(i));
+           printf("\nTEST 1: case 3 in for round %i\n", i);
+            _forceSensor->SetAnalogData(i, _max11611Data[i]);
         }
+
+        float sensedPresence = 0;
+        for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+        {
+          printf("\nTEST: case 3 in for round %i\n", i);
+          printf("\nTEST: psensorcount %i\n", PRESSURE_SENSOR_COUNT);
+          printf("\nTEST: psensorcount %f\n", sensedPresence);
+          sensedPresence += static_cast<float>(_forceSensor->GetAnalogData(i));
+        }
+
+              printf("\nTEST: case 3 between for and if\n");
+
         if (PRESSURE_SENSOR_COUNT != 0)
         {
             sensedPresence /= PRESSURE_SENSOR_COUNT;
@@ -298,17 +313,19 @@ bool DeviceManager::TestDevices()
         printf("Sensor Number \t Analog value \t Voltage (mV) \t Force (N) \n");
         for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
         {
-            printf("Sensor No: %i \t %i \t\t %u \t\t %f \n", i + 1,
-            static_cast<float>(_forceSensor->GetAnalogData(i));
+            printf("Sensor No: %i \t %i \t\t %u \t\t %f \n", i + 1, (_forceSensor->GetAnalogData(i)));
         }
         printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+        break;
       }
-      case 4:
+      case '4':
       {
         printf("\nTEST: case 4\n");
+        break;
       }
       default:
       {
+          printf("\nTEST: default, char value = %c\n", testNoID);
       }
     }
     // if (inSerialChar == 'a')
@@ -553,10 +570,10 @@ bool DeviceManager::TestDevices()
     //     int timeSinceEpoch = _datetimeRTC->GetTimeSinceEpoch();
     //     printf("Time since epoch: %d\n", timeSinceEpoch);
     // }
-    if (inSerialChar == 'q')
-    {
-        return true;
-    }
+    // if (inSerialChar == 'q')
+    // {
+    //     return true;
+    // }
 
     return false;
 }

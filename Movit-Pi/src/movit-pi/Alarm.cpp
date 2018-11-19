@@ -19,13 +19,6 @@ Alarm::Alarm(double blinkFrequency) : _blinkFrequency(blinkFrequency)
 bool Alarm::Initialize()
 {
     printf("PC9536 (Alarm) initializing ... ");
-    _pca9536.SetMode(DC_MOTOR, IO_OUTPUT);
-    _pca9536.SetMode(GREEN_LED, IO_OUTPUT);
-    _pca9536.SetMode(RED_LED, IO_OUTPUT);
-    _pca9536.SetState(IO_LOW);
-    _pca9536.SetMode(PUSH_BUTTON, IO_INPUT);
-    _pca9536.SetPolarity(PUSH_BUTTON, IO_INVERTED);
-
     if (!IsConnected())
     {
         printf("FAIL\n");
@@ -33,6 +26,12 @@ bool Alarm::Initialize()
     }
 
     printf("SUCCESS\n");
+    _pca9536.SetMode(DC_MOTOR, IO_OUTPUT);
+    _pca9536.SetMode(GREEN_LED, IO_OUTPUT);
+    _pca9536.SetMode(RED_LED, IO_OUTPUT);
+    _pca9536.SetState(IO_LOW);
+    _pca9536.SetMode(PUSH_BUTTON, IO_INPUT);
+    _pca9536.SetPolarity(PUSH_BUTTON, IO_INVERTED);
     TurnOffRedLed();
     TurnOffGreenLed();
     TurnOffDCMotor();
@@ -41,6 +40,7 @@ bool Alarm::Initialize()
 
 bool Alarm::IsConnected()
 {
+                                                      printf("\nIsconnected\n");
     return _pca9536.GetMode(DC_MOTOR) == IO_OUTPUT
         && _pca9536.GetMode(GREEN_LED) == IO_OUTPUT
         && _pca9536.GetMode(RED_LED) == IO_OUTPUT;

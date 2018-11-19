@@ -28,6 +28,8 @@ bool Imu::Initialize()
 
 bool Imu::IsConnected()
 {
+
+                                                      printf("\nIsconnected\n");
     return _imu.TestConnection();
 }
 
