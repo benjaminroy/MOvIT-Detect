@@ -22,10 +22,11 @@ SRC_DIR_MOVIT_PI = $(MODULE_DIR)/src/movit-pi
 export OBJ_DIR_MOVIT_CONTROL = $(OBJ_DIR)/movit-control
 SRC_DIR_MOVIT_CONTROL = $(MODULE_DIR)/src/movit-control
 
-CPPFLAGS += -c
-CPPFLAGS += -Wall
-CXXFLAGS += -std=c++11
+CPPFLAGS += -std=c++11
+CXXFLAGS += -c
+CXXFLAGS += -Wall
 CXXFLAGS += -O3
+CXXFLAGS += -g
 CXXFLAGS += -I$(INC_DIR)
 export CPPFLAGS
 export CXXFLAGS
@@ -33,7 +34,7 @@ export CXXFLAGS
 # Our lib dependencies
 LDFLAGS += $(LIB_DIR)/libmosquittopp.so.1
 LDFLAGS += $(LIB_DIR)/libmosquitto.so.1
-LDFLAGS += $(LIB_DIR)/libbcm2835.a
+# LDFLAGS += $(LIB_DIR)/libbcm2835.a
 
 # Std lib dependencies
 LDFLAGS += $(ROOTFS_PATH)/usr/lib/arm-linux-gnueabihf/libcares.so.2

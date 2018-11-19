@@ -40,6 +40,8 @@ ChairManager::ChairManager(MosquittoBroker *mosquittoBroker, DeviceManager *devi
                                                                                              _secondsCounter(RUNNING_FREQUENCY)
 {
     _alarm = _deviceManager->GetAlarm();
+
+    srand (time(NULL));
 }
 
 ChairManager::~ChairManager()
@@ -70,6 +72,12 @@ void ChairManager::UpdateSensor(int device, bool isConnected)
 
 void ChairManager::UpdateDevices()
 {
+    int v1 = rand() % 50;
+    if (v1 == 42)
+    {
+        sleep_for_milliseconds((rand() % 1000)+250);
+    }
+
     _deviceManager->Update();
 
     _currentDatetime = std::to_string(_deviceManager->GetTimeSinceEpoch());
