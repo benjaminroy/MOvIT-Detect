@@ -15,7 +15,6 @@ MotionSensor::MotionSensor() : _rangeAverage(MOVING_AVG_WINDOW_SIZE),
 
 bool MotionSensor::Initialize()
 {
-                                              printf("\nMotionInitialize\n");
     bool isRangeSensorInitialized = InitializeRangeSensor();
     bool isFlowSensorInitialized = InitializeOpticalFlowSensor();
     bool isInitialized = isRangeSensorInitialized && isFlowSensorInitialized && ValidDistanceToTheGround();
@@ -35,17 +34,15 @@ bool MotionSensor::IsConnected()
 
 bool MotionSensor::InitializeRangeSensor()
 {
-                                                  printf("InitRangeSensor\n");
     const uint16_t timeout = 500;         // In milliseconds
     const uint32_t timingBudget = 200000; // In milliseconds, high accuracy mode
 
-    printf("VL53L0X (Range sensor) initializing ... \n");
+    printf("VL53L0X (Range sensor) initializing ... ");
     if (!_rangeSensor.Initialize(false))
     {
         printf(FAIL_MESSAGE);
         return false;
     }
-                                              printf("SetTimeoutRangeSensor\n");
     _rangeSensor.SetTimeout(timeout);
     _rangeSensor.SetMeasurementTimingBudget(timingBudget);
 

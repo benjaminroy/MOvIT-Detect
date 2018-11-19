@@ -52,8 +52,6 @@ PCA9536::~PCA9536() {}
  *==============================================================================================================*/
 uint8_t PCA9536::GetMode(pin_t pin)
 {
-
-                                                        printf("GetMode\n");
     return GetPin(pin, REG_CONFIG);
 }
 
@@ -160,7 +158,6 @@ void PCA9536::Reset()
  *==============================================================================================================*/
 uint8_t PCA9536::GetReg(reg_ptr_t regPtr)
 {
-                                                        printf("GetReg\n");
     uint8_t regData = 0;
     I2Cdev::ReadByte(DEV_ADDR, regPtr, &regData);
     return regData;
@@ -171,7 +168,6 @@ uint8_t PCA9536::GetReg(reg_ptr_t regPtr)
  *==============================================================================================================*/
 uint8_t PCA9536::GetPin(pin_t pin, reg_ptr_t regPtr)
 {
-                                                        printf("GetPin\n");
     return (GetReg(regPtr) >> pin) & 1U;
 }
 

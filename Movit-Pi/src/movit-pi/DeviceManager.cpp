@@ -6,7 +6,6 @@
 #include "Utils.h"
 #include "MAX11611.h"
 #include "ForceSensor.h"
-
 #include <unistd.h>
 #include <thread>
 
@@ -248,17 +247,7 @@ double DeviceManager::GetXAcceleration()
 bool DeviceManager::TestDevices()
 {
     printf("\n.-.--..--- TEST MENU .--.---.--.-\n");
-    // printf("\n\nFunction testing :");
-    // printf("\n\tTestID\tDescription");
-    //--------------------------------------------------------------------------
-    // MODULE : Raspberry Pi Header
-    // PCB Validation tests:
-    // 1
-    // 2
-    // 3
-    // Functionnal tests:
-    // 1
-    // 2
+    printf("\n\tTestID\tDescription");
     //--------------------------------------------------------------------------
     // MODULE : Pressure Sensor
     // PCB Validation tests:
@@ -271,51 +260,58 @@ bool DeviceManager::TestDevices()
     printf("\n");
     printf("\nEnter a Test No. and press the return key to run test\n");
     char testNoID = getchar();
+    int loop = 0;
     getchar(); // To consume '\n'
 
     switch(testNoID)
     {
       case '1':
       {
-        printf("\nTEST: case 1\n");
+        printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+        printf("TEST NO. : %c\n", testNoID);
+        printf("Force sensors (ADC) validation\n");
+        while(loop != 27)
+        {
+          _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
+          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+          {
+              _forceSensor.SetAnalogData(i, _max11611Data[i]);
+          }
+          float sensedPresence = 0;
+          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+          {
+            sensedPresence += static_cast<float>(_forceSensor.GetAnalogData(i));
+          }
+          if (PRESSURE_SENSOR_COUNT != 0)
+          {
+              sensedPresence /= PRESSURE_SENSOR_COUNT;
+          }
+          printf("\nFORCE SENSORS VALUES\n");
+          printf("Sensor Number \t Analog value\n");
+          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+          {
+              printf("Sensor No: %i \t %i\n", i + 1,(_forceSensor.GetAnalogData(i)));
+          }
+          printf("\nSensed presence (sum(Analog Value)) = %f\n", sensedPresence);
+          printf("\nENTER to repeat test\n");
+          printf("ESC+ENTER to exit test\n");
+          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+          loop = getchar();
+          getchar();
+        }
         break;
       }
       case '2':
       {
-        printf("\nTEST: case 2\n");
+        printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+        printf("TEST NO. : %c\n", testNoID);
+        printf("Force sensors calibration validation\n");
+
         break;
       }
       case '3':
       {
-        printf("\nTEST: case 3\n");
-        for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-        {
-           printf("\nTEST 1: case 3 in for round %i\n", i);
-            _forceSensor->SetAnalogData(i, _max11611Data[i]);
-        }
-
-        float sensedPresence = 0;
-        for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-        {
-          printf("\nTEST: case 3 in for round %i\n", i);
-          printf("\nTEST: psensorcount %i\n", PRESSURE_SENSOR_COUNT);
-          printf("\nTEST: psensorcount %f\n", sensedPresence);
-          sensedPresence += static_cast<float>(_forceSensor->GetAnalogData(i));
-        }
-
-              printf("\nTEST: case 3 between for and if\n");
-
-        if (PRESSURE_SENSOR_COUNT != 0)
-        {
-            sensedPresence /= PRESSURE_SENSOR_COUNT;
-        }
-        printf("\n.-.--..---MESURE DES CAPTEURS DE FORCE--.---.--.-\n");
-        printf("Sensor Number \t Analog value \t Voltage (mV) \t Force (N) \n");
-        for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-        {
-            printf("Sensor No: %i \t %i \t\t %u \t\t %f \n", i + 1, (_forceSensor->GetAnalogData(i)));
-        }
-        printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+        printf("\nTEST: case 1\n");
         break;
       }
       case '4':
@@ -325,7 +321,7 @@ bool DeviceManager::TestDevices()
       }
       default:
       {
-          printf("\nTEST: default, char value = %c\n", testNoID);
+          printf("\nInvalid testNoID = %i\n", testNoID);
       }
     }
     // if (inSerialChar == 'a')

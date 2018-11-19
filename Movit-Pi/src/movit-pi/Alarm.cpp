@@ -40,7 +40,6 @@ bool Alarm::Initialize()
 
 bool Alarm::IsConnected()
 {
-                                                      printf("\nIsconnected\n");
     return _pca9536.GetMode(DC_MOTOR) == IO_OUTPUT
         && _pca9536.GetMode(GREEN_LED) == IO_OUTPUT
         && _pca9536.GetMode(RED_LED) == IO_OUTPUT;

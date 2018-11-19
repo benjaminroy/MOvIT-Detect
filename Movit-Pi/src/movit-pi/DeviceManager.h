@@ -13,8 +13,11 @@
 #include "MotionSensor.h"
 #include "FileManager.h"
 #include "Sensor.h"
-#include "ForceSensor.h"
+
 #include "MAX11611.h"
+#include "GlobalForcePlate.h"
+#include "ForceSensor.h"
+#include "ForcePlate.h"
 #include "PressureMat.h"
 #include "Utils.h"
 
@@ -107,7 +110,7 @@ class DeviceManager
     PressureMat *_pressureMat;
     MAX11611 _max11611;
     uint16_t _max11611Data[PRESSURE_SENSOR_COUNT];
-    ForceSensor *_forceSensor;
+    ForceSensor _forceSensor;
     MotionSensor *_motionSensor;
 };
 
