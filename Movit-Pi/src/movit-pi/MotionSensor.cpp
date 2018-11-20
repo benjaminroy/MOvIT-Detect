@@ -1,6 +1,7 @@
 #include "MotionSensor.h"
 #include <math.h>
 #include "Utils.h"
+#include "SysTime.h"
 
 #define MOVING_AVG_WINDOW_SIZE 10
 
@@ -17,7 +18,7 @@ bool MotionSensor::Initialize()
 {
     bool isRangeSensorInitialized = InitializeRangeSensor();
     bool isFlowSensorInitialized = InitializeOpticalFlowSensor();
-    bool isInitialized = isRangeSensorInitialized && isFlowSensorInitialized && ValidDistanceToTheGround();
+    bool isInitialized = isRangeSensorInitialized && isFlowSensorInitialized;
 
     if (isInitialized)
     {
@@ -117,20 +118,6 @@ double MotionSensor::GetAverageRange()
         printf("ERROR: Timeout occurred in range sensor \n");
     }
     return _rangeAverage.GetAverage();
-}
-
-bool MotionSensor::ValidDistanceToTheGround()
-{
-    const double minimumWorkingRange = 80.0; //The sensor needs a minimum of 80 mm to the ground.
-    printf("Validation of the minimum height of the flow sensor ... ");
-
-    if (GetAverageRange() < minimumWorkingRange)
-    {
-        printf(FAIL_MESSAGE);
-        return false;
-    }
-    printf(SUCCESS_MESSAGE);
-    return true;
 }
 
 bool MotionSensor::IsMoving()
