@@ -79,6 +79,7 @@ int main(int argc, char *argv[])
         {
             elapse_time = period;
         }
+
             sleep_for_milliseconds(period.count() - elapse_time.count());
         }
     }

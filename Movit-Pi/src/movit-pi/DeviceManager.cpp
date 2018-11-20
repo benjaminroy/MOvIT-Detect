@@ -283,60 +283,60 @@ bool DeviceManager::TestDevices()
     int loop = 0;
     getchar(); // To consume '\n'
 
-    switch(testNoID)
+    switch (testNoID)
     {
-      case '0':
-      {
+    case '0':
+    {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
         printf("LEDs RG (notif) validation\n");
-        while(loop != 27)
+        while (loop != 27)
         {
-          printf("\nGREEN LED ON - ENTER for next test");
-              _alarm.TurnOnGreenLed();
-              _alarm.TurnOffRedLed();
-          getchar();
+            printf("\nGREEN LED ON - ENTER for next test");
+            _alarm.TurnOnGreenLed();
+            _alarm.TurnOffRedLed();
+            getchar();
 
-          printf("RED LED ON - ENTER for next test");
-              _alarm.TurnOnRedLed();
-              _alarm.TurnOffGreenLed();
-          getchar();
+            printf("RED LED ON - ENTER for next test");
+            _alarm.TurnOnRedLed();
+            _alarm.TurnOffGreenLed();
+            getchar();
 
-          printf("BLINK GREEN-RED - ENTER to power off LEDs");
-          _alarm.TurnOnBlinkLedsAlarmThread().detach();
-          getchar();
-          _alarm.StopBlinkLedsAlarm();
+            printf("BLINK GREEN-RED - ENTER to power off LEDs");
+            _alarm.TurnOnBlinkLedsAlarmThread().detach();
+            getchar();
+            _alarm.StopBlinkLedsAlarm();
 
-          printf("\nENTER to restart test sequence\n");
-          printf("ESC+ENTER to exit test sequence\n");
-          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-          loop = getchar();
+            printf("\nENTER to restart test sequence\n");
+            printf("ESC+ENTER to exit test sequence\n");
+            printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+            loop = getchar();
         }
         getchar();
         break;
-      }
-      case '1':
-      {
+    }
+    case '1':
+    {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
         printf("DC motor (notif) validation\n");
-        while(loop != 27)
+        while (loop != 27)
         {
-          printf("\nDC MOTOR/BUZZER ON - ENTER to power off DC motor");
-          _alarm.TurnOnDCMotor();
-          getchar();
-          _alarm.TurnOffDCMotor();
+            printf("\nDC MOTOR/BUZZER ON - ENTER to power off DC motor");
+            _alarm.TurnOnDCMotor();
+            getchar();
+            _alarm.TurnOffDCMotor();
 
-          printf("\nENTER to repeat test\n");
-          printf("ESC+ENTER to exit test\n");
-          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-          loop = getchar();
+            printf("\nENTER to repeat test\n");
+            printf("ESC+ENTER to exit test\n");
+            printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+            loop = getchar();
         }
         getchar();
         break;
-      }
-      case '2':
-      {
+    }
+    case '2':
+    {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
         printf("Red blink alarm (notif) validation\n\n");
@@ -359,9 +359,9 @@ bool DeviceManager::TestDevices()
         }
         getchar();
         break;
-      }
-      case '3':
-      {
+    }
+    case '3':
+    {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
         printf("Push-button (notif) validation\n");
@@ -380,160 +380,159 @@ bool DeviceManager::TestDevices()
             }
             sleep_for_milliseconds(1000);
           }
-
-          printf("\nENTER to repeat test\n");
-          printf("ESC+ENTER to exit test\n");
-          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-          loop = getchar();
+            printf("\nENTER to repeat test\n");
+            printf("ESC+ENTER to exit test\n");
+            printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+            loop = getchar();
         }
         getchar();
         break;
-      }
-      case '5':
-      {
+    }
+    case '5':
+    {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
         printf("Force sensors (ADC) validation\n");
-        while(loop != 27)
+        while (loop != 27)
         {
-          _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
-          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-          {
-              _forceSensor.SetAnalogData(i, _max11611Data[i]);
-          }
-          printf("\nFORCE SENSORS VALUES\n");
-          printf("Sensor Number \t Analog value\n");
-          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-          {
-              printf("Sensor No: %i \t %i\n", i + 1,(_forceSensor.GetAnalogData(i)));
-          }
-          printf("\nENTER to repeat test\n");
-          printf("ESC+ENTER to exit test\n");
-          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-          loop = getchar();
+            _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
+            for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+            {
+                _forceSensor.SetAnalogData(i, _max11611Data[i]);
+            }
+            printf("\nFORCE SENSORS VALUES\n");
+            printf("Sensor Number \t Analog value\n");
+            for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+            {
+                printf("Sensor No: %i \t %i\n", i + 1, (_forceSensor.GetAnalogData(i)));
+            }
+            printf("\nENTER to repeat test\n");
+            printf("ESC+ENTER to exit test\n");
+            printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+            loop = getchar();
         }
         getchar();
         break;
-      }
-      case '6':
-      {
+    }
+    case '6':
+    {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
         printf("Force sensors calibration validation\n");
-        while(loop != 27)
+        while (loop != 27)
         {
-          _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
-          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-          {
-              _forceSensor.SetAnalogData(i, _max11611Data[i]);
-          }
-          printf("\nCalibration Start ...");
-          const uint8_t maxIterations = 5; //5s instead of 10s to acelerate tests
-          _forceSensor.CalibrateForceSensor(_max11611, _max11611Data, maxIterations);
+            _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
+            for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+            {
+                _forceSensor.SetAnalogData(i, _max11611Data[i]);
+            }
+            printf("\nCalibration Start ...");
+            const uint8_t maxIterations = 5; //5s instead of 10s to acelerate tests
+            _forceSensor.CalibrateForceSensor(_max11611, _max11611Data, maxIterations);
 
-          printf("\nINITIAL OFFSET VALUES\n");
-          printf("Sensor Number\tAnalog Offset\n");
-          pressure_mat_offset_t forceSensor = _forceSensor.GetOffsets();
-          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-          {
-              printf("Sensor No: %i \t %u \n", i + 1, forceSensor.analogOffset[i]);
-          }
-          printf("\nSensor mean from calibration : \t %f \n", forceSensor.totalSensorMean);
-          printf("Detection Threshold : %f \n", forceSensor.detectionThreshold);
+            printf("\nINITIAL OFFSET VALUES\n");
+            printf("Sensor Number\tAnalog Offset\n");
+            pressure_mat_offset_t forceSensor = _forceSensor.GetOffsets();
+            for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+            {
+                printf("Sensor No: %i \t %u \n", i + 1, forceSensor.analogOffset[i]);
+            }
+            printf("\nSensor mean from calibration : \t %f \n", forceSensor.totalSensorMean);
+            printf("Detection Threshold : %f \n", forceSensor.detectionThreshold);
 
-          printf("\nENTER to repeat test\n");
-          printf("ESC+ENTER to exit test\n");
-          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-          loop = getchar();
+            printf("\nENTER to repeat test\n");
+            printf("ESC+ENTER to exit test\n");
+            printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+            loop = getchar();
         }
-      getchar();
-      break;
-      }
-      case '7':
-      {
+        getchar();
+        break;
+    }
+    case '7':
+    {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
         printf("Presence detection validation\n");
-        while(loop != 27)
+        while (loop != 27)
         {
-          _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
-          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-          {
-              _forceSensor.SetAnalogData(i, _max11611Data[i]);
-          }
-          uint16_t sensedPresence = 0;
-          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-          {
-              sensedPresence += _forceSensor.GetAnalogData(i);
-          }
-          if (PRESSURE_SENSOR_COUNT != 0)
-          {
-              sensedPresence /= PRESSURE_SENSOR_COUNT;
-          }
-          pressure_mat_offset_t forceSensor = _forceSensor.GetOffsets();
-          printf("\nSensed presence (mean(Analog Value)) = %i\n", sensedPresence);
-          printf("Detection Threshold set to : %f \n", forceSensor.detectionThreshold);
-          printf("Presence detection result : ");
-          if (_forceSensor.IsUserDetected())
-          {
-              printf("User detected \n");
-          }
-          else
-          {
-              printf("No user detected \n");
-          }
-          printf("\nENTER to repeat test\n");
-          printf("ESC+ENTER to exit test\n");
-          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-          loop = getchar();
+            _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
+            for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+            {
+                _forceSensor.SetAnalogData(i, _max11611Data[i]);
+            }
+            uint16_t sensedPresence = 0;
+            for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+            {
+                sensedPresence += _forceSensor.GetAnalogData(i);
+            }
+            if (PRESSURE_SENSOR_COUNT != 0)
+            {
+                sensedPresence /= PRESSURE_SENSOR_COUNT;
+            }
+            pressure_mat_offset_t forceSensor = _forceSensor.GetOffsets();
+            printf("\nSensed presence (mean(Analog Value)) = %i\n", sensedPresence);
+            printf("Detection Threshold set to : %f \n", forceSensor.detectionThreshold);
+            printf("Presence detection result : ");
+            if (_forceSensor.IsUserDetected())
+            {
+                printf("User detected \n");
+            }
+            else
+            {
+                printf("No user detected \n");
+            }
+            printf("\nENTER to repeat test\n");
+            printf("ESC+ENTER to exit test\n");
+            printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+            loop = getchar();
         }
         getchar();
         break;
-      }
-      case '8':
-      {
+    }
+    case '8':
+    {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
         printf("Force plates validation\n");
-        while(loop != 27)
+        while (loop != 27)
         {
-          _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
-          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-          {
-              _forceSensor.SetAnalogData(i, _max11611Data[i]);
-          }
-          _forcePlates.UpdateForcePlateData();
-          pressure_mat_data_t forcePlates = _forcePlates.GetPressureMatData();
-          printf("\nFORCE PLATES CENTER OF PRESSURES\n");
-          printf("Relative position of the center of pressure for each quadrants (inches) \n");
-          printf("COP Axis \t forcePlate1 \t forcePlate2 \t forcePlate3 \t forcePlate4 \n");
-          printf("COP (X): \t %f \t %f \t %f \t %f \n",
-          forcePlates.quadrantPressure[1].x,
-          forcePlates.quadrantPressure[2].x,
-          forcePlates.quadrantPressure[3].x,
-          forcePlates.quadrantPressure[4].x);
-          printf("COP (Y): \t %f \t\%f \t %f \t %f \n",
-          forcePlates.quadrantPressure[1].y,
-          forcePlates.quadrantPressure[2].y,
-          forcePlates.quadrantPressure[3].y,
-          forcePlates.quadrantPressure[4].y);
+            _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
+            for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+            {
+                _forceSensor.SetAnalogData(i, _max11611Data[i]);
+            }
+            _forcePlates.UpdateForcePlateData();
+            pressure_mat_data_t forcePlates = _forcePlates.GetPressureMatData();
+            printf("\nFORCE PLATES CENTER OF PRESSURES\n");
+            printf("Relative position of the center of pressure for each quadrants (inches) \n");
+            printf("COP Axis \t forcePlate1 \t forcePlate2 \t forcePlate3 \t forcePlate4 \n");
+            printf("COP (X): \t %f \t %f \t %f \t %f \n",
+                   forcePlates.quadrantPressure[1].x,
+                   forcePlates.quadrantPressure[2].x,
+                   forcePlates.quadrantPressure[3].x,
+                   forcePlates.quadrantPressure[4].x);
+            printf("COP (Y): \t %f \t\%f \t %f \t %f \n",
+                   forcePlates.quadrantPressure[1].y,
+                   forcePlates.quadrantPressure[2].y,
+                   forcePlates.quadrantPressure[3].y,
+                   forcePlates.quadrantPressure[4].y);
 
-          printf("\nENTER to repeat test\n");
-          printf("ESC+ENTER to exit test\n");
-          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-          loop = getchar();
+            printf("\nENTER to repeat test\n");
+            printf("ESC+ENTER to exit test\n");
+            printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+            loop = getchar();
         }
         getchar();
         break;
-      }
-      case 'q':
-      {
-          return true;
-      }
-      default:
-      {
-          printf("\nInvalid testNoID = %i\n", testNoID);
-      }
+    }
+    case 'q':
+    {
+        return true;
+    }
+    default:
+    {
+        printf("\nInvalid testNoID = %i\n", testNoID);
+    }
     }
     return false;
   }
