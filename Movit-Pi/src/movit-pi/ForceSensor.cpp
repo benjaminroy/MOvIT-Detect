@@ -103,9 +103,11 @@ void ForceSensor::CalibrateForceSensor(MAX11611 &max11611, uint16_t *max11611Dat
         _totalSensorMean += sensorMean[i];
     }
     _totalSensorMean /= maxIterations;
-
     _detectionThreshold = calibrationRatio * _totalSensorMean;
-    printf("DONE\n");
+    printf("\ntotalmeansen = %i \n", _totalSensorMean);
+    printf("\ndetectionThreshold = %f\n", _detectionThreshold);
+
+    printf("\nDONE\n");
 }
 
 //---------------------------------------------------------------------------------------

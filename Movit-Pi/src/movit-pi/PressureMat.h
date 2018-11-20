@@ -32,13 +32,15 @@ class PressureMat : public Sensor
 		static PressureMat instance;
 		return &instance;
 	}
-
-  private:
 	//Singleton
+  //ici-bas c'était private avant ?
 	PressureMat();
 	PressureMat(PressureMat const &);	// Don't Implement.
 	void operator=(PressureMat const &); // Don't implement.
+  void DetectCenterOfPressure();
+	void UpdateForcePlateData();
 
+private:
 	const float DEFAULT_CENTER_OF_PRESSURE = 0.0f;
 
 	//Constants - physical montage values
@@ -49,8 +51,6 @@ class PressureMat : public Sensor
 	bool IsPressureMatOffsetValid(pressure_mat_offset_t offset);
 	bool InitializeForcePlate();
 
-	void DetectCenterOfPressure();
-	void UpdateForcePlateData();
 
 	bool _isSomeoneThere = false;
 	bool _isForcePlateInitialized = false;

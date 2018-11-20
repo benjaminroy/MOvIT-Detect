@@ -254,8 +254,9 @@ bool DeviceManager::TestDevices()
     printf("\n\t 1 \t Force sensors (ADC) validation");
     // Functionnal tests:
     printf("\n\t 2 \t Force sensors calibration validation");
-    printf("\n\t 3 \t Force plates validation");
-    printf("\n\t 4 \t Centers of pressure validation");
+    printf("\n\t 3 \t Presence detection validation");
+    printf("\n\t 4 \t Force plates validation");
+    printf("\n\t 5 \t Centers of pressure validation");
     //--------------------------------------------------------------------------
     printf("\n");
     printf("\nEnter a Test No. and press the return key to run test\n");
@@ -277,28 +278,18 @@ bool DeviceManager::TestDevices()
           {
               _forceSensor.SetAnalogData(i, _max11611Data[i]);
           }
-          float sensedPresence = 0;
-          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-          {
-            sensedPresence += static_cast<float>(_forceSensor.GetAnalogData(i));
-          }
-          if (PRESSURE_SENSOR_COUNT != 0)
-          {
-              sensedPresence /= PRESSURE_SENSOR_COUNT;
-          }
           printf("\nFORCE SENSORS VALUES\n");
           printf("Sensor Number \t Analog value\n");
           for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
           {
               printf("Sensor No: %i \t %i\n", i + 1,(_forceSensor.GetAnalogData(i)));
           }
-          printf("\nSensed presence (sum(Analog Value)) = %f\n", sensedPresence);
           printf("\nENTER to repeat test\n");
           printf("ESC+ENTER to exit test\n");
           printf(".-.--..---.-.-.--.--.--.---.--.-\n");
           loop = getchar();
-          getchar();
         }
+        getchar();
         break;
       }
       case '2':
@@ -306,17 +297,110 @@ bool DeviceManager::TestDevices()
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
         printf("Force sensors calibration validation\n");
+        while(loop != 27)
+        {
+          _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
+          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+          {
+              _forceSensor.SetAnalogData(i, _max11611Data[i]);
+          }
+          printf("\nCalibration Start ...");
+          const uint8_t maxIterations = 5; //5s instead of 10s to acelerate tests
+          _forceSensor.CalibrateForceSensor(_max11611, _max11611Data, maxIterations);
 
-        break;
+          printf("\nINITIAL OFFSET VALUES\n");
+          printf("Sensor Number\tAnalog Offset\n");
+          pressure_mat_offset_t forceSensor = _forceSensor.GetOffsets();
+          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+          {
+              printf("Sensor No: %i \t %u \n", i + 1, forceSensor.analogOffset[i]);
+          }
+          printf("\nSensor mean from calibration : \t %f \n", forceSensor.totalSensorMean);
+          printf("Detection Threshold : %f \n", forceSensor.detectionThreshold);
+
+          printf("\nENTER to repeat test\n");
+          printf("ESC+ENTER to exit test\n");
+          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+          loop = getchar();
+        }
+      getchar();
+      break;
       }
       case '3':
       {
-        printf("\nTEST: case 1\n");
+        printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+        printf("TEST NO. : %c\n", testNoID);
+        printf("Presence detection validation\n");
+        while(loop != 27)
+        {
+          _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
+          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+          {
+              _forceSensor.SetAnalogData(i, _max11611Data[i]);
+          }
+          uint16_t sensedPresence = 0;
+          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+          {
+              sensedPresence += _forceSensor.GetAnalogData(i);
+          }
+          if (PRESSURE_SENSOR_COUNT != 0)
+          {
+              sensedPresence /= PRESSURE_SENSOR_COUNT;
+          }
+          pressure_mat_offset_t forceSensor = _forceSensor.GetOffsets();
+          printf("\nSensed presence (mean(Analog Value)) = %i\n", sensedPresence);
+          printf("Detection Threshold set to : %f \n", forceSensor.detectionThreshold);
+          printf("Presence detection result : ");
+          if (_forceSensor.IsUserDetected())
+          {
+              printf("User detected \n");
+          }
+          else
+          {
+              printf("No user detected \n");
+          }
+          printf("\nENTER to repeat test\n");
+          printf("ESC+ENTER to exit test\n");
+          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+          loop = getchar();
+        }
+        getchar();
         break;
       }
       case '4':
       {
-        printf("\nTEST: case 4\n");
+        printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+        printf("TEST NO. : %c\n", testNoID);
+        printf("Force plates validation\n");
+        while(loop != 27)
+        {
+          _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
+          for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+          {
+              _forceSensor.SetAnalogData(i, _max11611Data[i]);
+          }
+          _forcePlates.UpdateForcePlateData();
+          pressure_mat_data_t forcePlates = _forcePlates.GetPressureMatData();
+          printf("\nFORCE PLATES CENTER OF PRESSURES\n");
+          printf("Relative position of the center of pressure for each quadrants (inches) \n");
+          printf("COP Axis \t forcePlate1 \t forcePlate2 \t forcePlate3 \t forcePlate4 \n");
+          printf("COP (X): \t %f \t %f \t %f \t %f \n",
+          forcePlates.quadrantPressure[1].x,
+          forcePlates.quadrantPressure[2].x,
+          forcePlates.quadrantPressure[3].x,
+          forcePlates.quadrantPressure[4].x);
+          printf("COP (Y): \t %f \t\%f \t %f \t %f \n",
+          forcePlates.quadrantPressure[1].y,
+          forcePlates.quadrantPressure[2].y,
+          forcePlates.quadrantPressure[3].y,
+          forcePlates.quadrantPressure[4].y);
+
+          printf("\nENTER to repeat test\n");
+          printf("ESC+ENTER to exit test\n");
+          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+          loop = getchar();
+        }
+        getchar();
         break;
       }
       default:
@@ -383,64 +467,6 @@ bool DeviceManager::TestDevices()
     //     // _alarm.TurnOnRedAlarm();
     // }
     // /*
-    // else if (inSerialChar == 'f')
-    // {
-    //
-    //     printf("\nDEBUG CALIBRATION FORCE SENSORS START");
-    //     printf("\nFunction(s) under test:");
-    //     printf("\n CalibrateForceSensor()");
-    //     printf("\n IsUserDetected()");
-    //
-    //     //Calibration
-    //     UpdateForcePlateData();
-    //     _sensorMatrix.CalibrateForceSensor(_max11611Data, _max11611);
-    //     //Last sensed presence analog reading to compare with calibration
-    //     uint16_t sensedPresence = 0;
-    //     for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-    //     {
-    //         sensedPresence += _sensorMatrix.GetAnalogData(i);
-    //     }
-    //     if (PRESSURE_SENSOR_COUNT != 0)
-    //     {
-    //         sensedPresence /= PRESSURE_SENSOR_COUNT;
-    //     }
-    //
-    //     printf("\n.-.--..---DERNIERE MESURE DES CAPTEURS EN TEMPS REEL.--.---.--.-\n");
-    //     printf("Sensor Number \t Analog value \t Voltage (mV) \t Force (N) \n");
-    //     for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-    //     {
-    //         printf("Sensor No: %i \t %i \t\t %u \t\t  %f \n", i + 1, _sensorMatrix.GetAnalogData(i), _sensorMatrix.GetVoltageData(i), _sensorMatrix.GetForceData(i));
-    //     }
-    //     printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-    //
-    //     printf("\n.-.--..---.-.OFFSET INITIAUX.--.---.--.-\n");
-    //     printf("Sensor Number\t");
-    //     printf("Analog value\n");
-    //     for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-    //     {
-    //         printf("Sensor No: %i \t %u \n", i + 1, _sensorMatrix.GetAnalogOffset(i));
-    //     }
-    //     printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-    //
-    //     printf("\n.-.--..---.-.OFFSET INITIAUX.--.---.--.-\n");
-    //     printf("Total sensor mean : \t %i \n", _sensorMatrix.GetTotalSensorMean());
-    //     printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-    //
-    //     printf("\n.-.--..---DETECTION DUNE PERSONNE SUR LA CHAISE--.---.--.-\n");
-    //     printf("Detected Presence : %u \n", sensedPresence);
-    //     printf("Detection Threshold : %f \n", _sensorMatrix.GetDetectionThreshold());
-    //     printf("Presence verification result : ");
-    //
-    //     if (_sensorMatrix.IsUserDetected())
-    //     {
-    //         printf("User detected \n");
-    //     }
-    //     else
-    //     {
-    //         printf("No user detected \n");
-    //     }
-    //     printf(".-.--..---.-.-.--.--.--.---.--.-\n\n");
-    // }
     // else if (inSerialChar == 'g')
     // {
     //
