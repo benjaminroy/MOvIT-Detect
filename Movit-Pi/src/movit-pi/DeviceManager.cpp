@@ -254,7 +254,8 @@ bool DeviceManager::TestDevices()
     printf("\n\t 0 \t LEDs RG (notif) validation");
     printf("\n\t 1 \t DC motor - buzzer (notif) validation");
     // Functionnal tests:
-    printf("\n\t 2 \t Blink alarm (notif) validation");
+    printf("\n\t 2 \t Red blink alarm (notif) validation");
+    printf("\n\t 3 \t Blink alarm 5 seconds (notif) validation");
     //--------------------------------------------------------------------------
     //--------------------------------------------------------------------------
     // MODULE : Pressure Sensor
@@ -297,7 +298,7 @@ bool DeviceManager::TestDevices()
           getchar();
           _alarm.StopBlinkLedsAlarm();
 
-          printf("\nENTER to retstart test sequence\n");
+          printf("\nENTER to restart test sequence\n");
           printf("ESC+ENTER to exit test sequence\n");
           printf(".-.--..---.-.-.--.--.--.---.--.-\n");
           loop = getchar();
@@ -317,8 +318,8 @@ bool DeviceManager::TestDevices()
           getchar();
           _alarm.TurnOffDCMotor();
 
-          printf("\nENTER to retstart test sequence\n");
-          printf("ESC+ENTER to exit test sequence\n");
+          printf("\nENTER to repeat test\n");
+          printf("ESC+ENTER to exit test\n");
           printf(".-.--..---.-.-.--.--.--.---.--.-\n");
           loop = getchar();
         }
@@ -329,7 +330,7 @@ bool DeviceManager::TestDevices()
       {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
-        printf("RED BLINK ALARM (notif) validation\n");
+        printf("Red blink alarm (notif) validation\n");
         while(loop != 27)
         {
           printf("\nALARM ON - ENTER to stop alarm");
@@ -337,8 +338,43 @@ bool DeviceManager::TestDevices()
           getchar();
           _alarm.StopBlinkRedAlarm();
 
-          printf("\nENTER to retstart test sequence\n");
-          printf("ESC+ENTER to exit test sequence\n");
+          printf("\nENTER to repeat test\n");
+          printf("ESC+ENTER to exit test\n");
+          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+          loop = getchar();
+        }
+        getchar();
+        break;
+      }
+      case '3':
+      {
+        printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+        printf("TEST NO. : %c\n", testNoID);
+        printf("Blink alarm 5 seconds (notif) validation\n");
+        while(loop != 27)
+        {
+          printf("\nALARM ON - 5 seconds");
+
+          _alarm.TurnOnBlinkLedsAlarmThread().detach();
+          _alarm.TurnOnDCMotor();
+          sleep_for_milliseconds(5000);
+          _alarm.TurnOffDCMotor();
+          _alarm.StopBlinkLedsAlarm();
+          for (int i = 0; i < 100000; i++)
+          {
+            if (_alarm.ButtonPressed())
+            {
+              printf("BUTTON PRESSED\n");
+            }
+            else
+            {
+              printf("BUTTON NOT PRESSED\n");
+            }
+            sleep_for_milliseconds(100);
+          }
+
+          printf("\nENTER to repeat test\n");
+          printf("ESC+ENTER to exit test\n");
           printf(".-.--..---.-.-.--.--.--.---.--.-\n");
           loop = getchar();
         }
