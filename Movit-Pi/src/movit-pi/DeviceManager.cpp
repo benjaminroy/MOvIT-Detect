@@ -277,6 +277,11 @@ bool DeviceManager::TestDevices()
   {
     case '1':
     {
+      //asda
+
+
+
+
       printf("\nModule Header Raspberry Pi\n");
       break;
     }
@@ -413,7 +418,7 @@ bool DeviceManager::TestDevices()
           }
           default:
           {
-            printf("\nInvalid TestID = %i\n", moduleID);
+            printf("\nInvalid TestID = %i\n", testNoID);
           }
           break;
         }
@@ -475,6 +480,7 @@ bool DeviceManager::TestDevices()
           case 'q':
           {
             subTestExit = 1;
+            moduleID = 0;
             break;
           }
           default:
