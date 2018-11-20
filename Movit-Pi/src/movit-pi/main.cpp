@@ -79,6 +79,16 @@ int main(int argc, char *argv[])
             {
                 elapse_time = period;
             }
+            if (elapse_time.count() >= period.count())
+            {
+                printf("MAIN LOOP OVERRUN. It took: %lli\n", elapse_time.count());
+                elapse_time = period;
+            }
+
+            if (elapse_time.count() >= period.count())
+            {
+                elapse_time = period;
+            }
 
             sleep_for_milliseconds(period.count() - elapse_time.count());
         }
