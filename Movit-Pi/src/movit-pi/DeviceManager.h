@@ -111,6 +111,7 @@ class DeviceManager
     MAX11611 _max11611;
     uint16_t _max11611Data[PRESSURE_SENSOR_COUNT];
     ForceSensor _forceSensor;
+
     PressureMat _forcePlates;
     MotionSensor *_motionSensor;
 };
