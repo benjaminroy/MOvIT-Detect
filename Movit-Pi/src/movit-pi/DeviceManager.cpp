@@ -4,13 +4,9 @@
 #include "MobileImu.h"
 #include "I2Cdev.h"
 #include "Utils.h"
-<<<<<<< HEAD
 #include "MAX11611.h"
 #include "ForceSensor.h"
-=======
 #include "SysTime.h"
-
->>>>>>> origin/develop
 #include <unistd.h>
 #include <thread>
 
@@ -251,7 +247,12 @@ double DeviceManager::GetXAcceleration()
     return 0;
 }
 
-<<<<<<< HEAD
+void DeviceManager::UpdateNotificationsSettings(std::string notificationsSettings)
+{
+_fileManager->SetNotificationsSettings(notificationsSettings);
+_fileManager->Save();
+}
+
 bool DeviceManager::TestDevices()
 {
     printf("\n.-.--..--- TEST MENU .--.---.--.-\n");
@@ -263,7 +264,7 @@ bool DeviceManager::TestDevices()
     printf("\n\t 1 \t DC motor - buzzer (notif) validation");
     // Functionnal tests:
     printf("\n\t 2 \t Red blink alarm (notif) validation");
-    printf("\n\t 3 \t Blink alarm 5 seconds (notif) validation");
+    printf("\n\t 3 \t Push-button (notif) validation");
     //--------------------------------------------------------------------------
     //--------------------------------------------------------------------------
     // MODULE : Pressure Sensor
@@ -338,12 +339,17 @@ bool DeviceManager::TestDevices()
       {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
-        printf("Red blink alarm (notif) validation\n");
+        printf("Red blink alarm (notif) validation\n\n");
         while(loop != 27)
         {
-          printf("\nALARM ON - ENTER to stop alarm");
+          printf("RED ALARM ON (3 sec.) - ENTER to stop alarm\n");
           _alarm.TurnOnBlinkRedAlarmThread().detach();
-          getchar();
+          int alarmTime = 3;
+          for (int i = 0; i < alarmTime; i++)
+          {
+            printf("%i\n", (alarmTime - i));
+            sleep_for_milliseconds(1000);
+          }
           _alarm.StopBlinkRedAlarm();
 
           printf("\nENTER to repeat test\n");
@@ -358,27 +364,21 @@ bool DeviceManager::TestDevices()
       {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
-        printf("Blink alarm 5 seconds (notif) validation\n");
+        printf("Push-button (notif) validation\n");
         while(loop != 27)
         {
-          printf("\nALARM ON - 5 seconds");
-
-          _alarm.TurnOnBlinkLedsAlarmThread().detach();
-          _alarm.TurnOnDCMotor();
-          sleep_for_milliseconds(5000);
-          _alarm.TurnOffDCMotor();
-          _alarm.StopBlinkLedsAlarm();
-          for (int i = 0; i < 100000; i++)
+          printf("\nPUSH BUTTON STATE\n");
+          for (int i = 0; i < 5; i++)
           {
             if (_alarm.ButtonPressed())
             {
-              printf("BUTTON PRESSED\n");
+              printf("Reading %i : PUSH-BUTTON PRESSED\n", (i+1));
             }
             else
             {
-              printf("BUTTON NOT PRESSED\n");
+              printf("Reading %i : ... \n", (i+1));
             }
-            sleep_for_milliseconds(100);
+            sleep_for_milliseconds(1000);
           }
 
           printf("\nENTER to repeat test\n");
@@ -722,10 +722,3 @@ bool DeviceManager::TestDevices()
     // {
     //     return true;
     // }
-=======
-void DeviceManager::UpdateNotificationsSettings(std::string notificationsSettings)
-{
-    _fileManager->SetNotificationsSettings(notificationsSettings);
-    _fileManager->Save();
-}
->>>>>>> origin/develop

@@ -69,12 +69,6 @@ int main(int argc, char *argv[])
             end = std::chrono::system_clock::now();
             auto elapse_time = std::chrono::duration_cast<milliseconds>(end - start);
 
-<<<<<<< HEAD
-            if (elapse_time.count() >= period.count())
-            {
-                elapse_time = period;
-            }
-=======
         if (elapse_time.count() >= period.count())
         {
             printf("MAIN LOOP OVERRUN. It took: %lli\n", elapse_time.count());
@@ -85,8 +79,6 @@ int main(int argc, char *argv[])
         {
             elapse_time = period;
         }
->>>>>>> origin/develop
-
             sleep_for_milliseconds(period.count() - elapse_time.count());
         }
     }
