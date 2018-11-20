@@ -4,8 +4,13 @@
 #include "MobileImu.h"
 #include "I2Cdev.h"
 #include "Utils.h"
+<<<<<<< HEAD
 #include "MAX11611.h"
 #include "ForceSensor.h"
+=======
+#include "SysTime.h"
+
+>>>>>>> origin/develop
 #include <unistd.h>
 #include <thread>
 
@@ -24,6 +29,8 @@ void DeviceManager::InitializeDevices()
     I2Cdev::Initialize();
 
     _fileManager->Read();
+
+    _notificationsSettings = _fileManager->GetNotificationsSettings();
 
     InitializePressureMat();
     InitializeMobileImu();
@@ -244,6 +251,7 @@ double DeviceManager::GetXAcceleration()
     return 0;
 }
 
+<<<<<<< HEAD
 bool DeviceManager::TestDevices()
 {
     printf("\n.-.--..--- TEST MENU .--.---.--.-\n");
@@ -714,3 +722,10 @@ bool DeviceManager::TestDevices()
     // {
     //     return true;
     // }
+=======
+void DeviceManager::UpdateNotificationsSettings(std::string notificationsSettings)
+{
+    _fileManager->SetNotificationsSettings(notificationsSettings);
+    _fileManager->Save();
+}
+>>>>>>> origin/develop

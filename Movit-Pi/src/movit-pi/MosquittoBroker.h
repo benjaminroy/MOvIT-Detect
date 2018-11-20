@@ -37,6 +37,7 @@ class MosquittoBroker : public mosqpp::mosquittopp
     uint32_t GetRequiredPeriod();
     uint32_t GetRequiredDuration();
     std::string GetWifiInformation();
+    float GetSnoozeTime();
 
     bool IsSetAlarmOnNew() { return _setAlarmOnNew; }
     bool IsRequiredBackRestAngleNew() { return _requiredBackRestAngleNew; }
@@ -47,7 +48,8 @@ class MosquittoBroker : public mosqpp::mosquittopp
     bool CalibPressureMatRequired();
     bool CalibIMURequired();
 
-    bool IsVibrationDeactivated() { return _isVibrationDeactivated; }
+    bool IsNotificationsSettingsChanged() { return _isNotificationsSettingsChanged; }
+    std::string GetNotificationsSettings();
 
   private:
     void PublishMessage(const char *topic, const std::string message);
@@ -57,11 +59,11 @@ class MosquittoBroker : public mosqpp::mosquittopp
     uint32_t _requiredPeriod = 0;
     uint32_t _requiredDuration = 0;
     std::string _wifiInformation = "";
+    std::string _notificationsSettings = "";
 
+    bool _isNotificationsSettingsChanged = false;
     bool _calibPressureMatRequired = false;
     bool _calibIMURequired = false;
-    bool _isVibrationDeactivated = false;
-
     bool _setAlarmOnNew = false;
     bool _requiredBackRestAngleNew = false;
     bool _requiredPeriodNew = false;

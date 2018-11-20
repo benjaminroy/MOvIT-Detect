@@ -27,9 +27,10 @@ const char *ALARM_TOPIC = "data/set_alarm";
 const char *REQUIRED_ANGLE_TOPIC = "data/required_back_rest_angle";
 const char *REQUIRED_PERIOD_TOPIC = "data/required_period";
 const char *REQUIRED_DURATION_TOPIC = "data/required_duration";
+const char *REQUIRED_SNOOZE_TIME_TOPIC = "data/required_snooze_time";
 const char *CALIB_PRESSURE_MAT_TOPIC = "config/calib_pressure_mat";
 const char *CALIB_IMU_TOPIC = "config/calib_imu";
-const char *DEACTIVATE_VIBRATION = "config/deactivate_vibration";
+const char *NOTIFICATIONS_SETTINGS_TOPIC = "config/notifications_settings";
 const char *SELECT_WIFI_TOPIC = "config/wifi";
 
 const char *CURRENT_BACK_REST_ANGLE_TOPIC = "data/current_back_rest_angle";
@@ -96,8 +97,9 @@ void MosquittoBroker::on_connect(int rc)
         subscribe(NULL, REQUIRED_DURATION_TOPIC);
         subscribe(NULL, CALIB_PRESSURE_MAT_TOPIC);
         subscribe(NULL, CALIB_IMU_TOPIC);
-        subscribe(NULL, DEACTIVATE_VIBRATION);
+        subscribe(NULL, NOTIFICATIONS_SETTINGS_TOPIC);
         subscribe(NULL, SELECT_WIFI_TOPIC);
+        subscribe(NULL, REQUIRED_SNOOZE_TIME_TOPIC);
     }
 }
 
@@ -142,12 +144,12 @@ void MosquittoBroker::on_message(const mosquitto_message *msg)
             _setAlarmOnNew = false;
         }
     }
-    if (topic == SELECT_WIFI_TOPIC)
+    else if (topic == SELECT_WIFI_TOPIC)
     {
         _wifiChanged = true;
         _wifiInformation = message;
     }
-    if (topic == REQUIRED_ANGLE_TOPIC)
+    else if (topic == REQUIRED_ANGLE_TOPIC)
     {
         try
         {
@@ -162,7 +164,7 @@ void MosquittoBroker::on_message(const mosquitto_message *msg)
             _requiredBackRestAngleNew = false;
         }
     }
-    if (topic == REQUIRED_PERIOD_TOPIC)
+    else if (topic == REQUIRED_PERIOD_TOPIC)
     {
         try
         {
@@ -177,7 +179,7 @@ void MosquittoBroker::on_message(const mosquitto_message *msg)
             _requiredPeriodNew = false;
         }
     }
-    if (topic == REQUIRED_DURATION_TOPIC)
+    else if (topic == REQUIRED_DURATION_TOPIC)
     {
         try
         {
@@ -192,7 +194,7 @@ void MosquittoBroker::on_message(const mosquitto_message *msg)
             _requiredDurationNew = false;
         }
     }
-    if (topic == CALIB_PRESSURE_MAT_TOPIC)
+    else if (topic == CALIB_PRESSURE_MAT_TOPIC)
     {
         try
         {
@@ -205,7 +207,7 @@ void MosquittoBroker::on_message(const mosquitto_message *msg)
             _calibPressureMatRequired = false;
         }
     }
-    if (topic == CALIB_IMU_TOPIC)
+    else if (topic == CALIB_IMU_TOPIC)
     {
         try
         {
@@ -218,19 +220,14 @@ void MosquittoBroker::on_message(const mosquitto_message *msg)
             _calibIMURequired = false;
         }
     }
-    if (topic == DEACTIVATE_VIBRATION)
+    else if (topic == NOTIFICATIONS_SETTINGS_TOPIC)
     {
-        try
-        {
-            printf("Something new for _isVibrationDeactivated = %s\n", message.c_str());
-            _isVibrationDeactivated = std::stoi(message);
-        }
-        catch (const std::exception &e)
-        {
-            printf(EXCEPTION_MESSAGE, e.what());
-            printf("Setting _deactivate_vibration to 0\n");
-            _isVibrationDeactivated = false;
-        }
+        _notificationsSettings = message;
+        _isNotificationsSettingsChanged = true;
+    }
+    else
+    {
+        throw "Error: Invalid topic";
     }
 }
 
@@ -379,7 +376,7 @@ void MosquittoBroker::SendSensorsState(const bool alarmStatus, const bool mobile
         "\"fixedImu\":" + std::to_string(fixedImuStatus) + ","
         "\"motionSensor\":" + std::to_string(motionSensorStatus) + ","
         "\"forcePlate\":" + std::to_string(plateSensorStatus) + "}";
-        
+
     PublishMessage(SENSORS_STATUS_TOPIC, strMsg);
 }
 
@@ -443,6 +440,12 @@ std::string MosquittoBroker::GetWifiInformation()
 {
     _wifiChanged = false;
     return _wifiInformation;
+}
+
+std::string MosquittoBroker::GetNotificationsSettings()
+{
+    _isNotificationsSettingsChanged = false;
+    return _notificationsSettings;
 }
 
 bool MosquittoBroker::CalibPressureMatRequired()
