@@ -22,6 +22,10 @@ class ForceSensor
   private:
     uint16_t _analogData[PRESSURE_SENSOR_COUNT];
     uint16_t _analogOffset[PRESSURE_SENSOR_COUNT];
+
+    MAX11611 _max11611;
+    uint16_t _max11611Data[PRESSURE_SENSOR_COUNT];
+    
     float _totalSensorMean;
     float _detectionThreshold;
 };
