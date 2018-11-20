@@ -136,19 +136,21 @@ bool ForceSensor::IsUserDetected()
     return sensedPresence > _detectionThreshold;
 }
 
-uint16_t ForceSensor::GetAnalogData(uint8_t index)
+uint16_t ForceSensor::RearrangeADCData(uint8_t index, uint16_t analogData)
 {
-    //Rearrange analog data to fix a hardware problem.
-    uint16_t rearrangedAnalogData[PRESSURE_SENSOR_COUNT];
-    rearrangedAnalogData[0] = _analogData[5];
-    rearrangedAnalogData[1] = _analogData[7];
-    rearrangedAnalogData[2] = _analogData[6];
-    rearrangedAnalogData[3] = _analogData[2];
-    rearrangedAnalogData[4] = _analogData[4];
-    rearrangedAnalogData[5] = _analogData[3];
-    rearrangedAnalogData[6] = _analogData[1];
-    rearrangedAnalogData[7] = _analogData[0];
-    rearrangedAnalogData[8] = _analogData[8];
+  _analogData[index] = analogData;
 
-    return rearrangedAnalogData[index];
+  uint16_t tempData[PRESSURE_SENSOR_COUNT];
+  tempData[index] = analogData;
+
+  //Rearrange analog data to fix a hardware problem.
+  _analogData[0] = tempData[5];
+  _analogData[1] = tempData[7];
+  _analogData[2] = tempData[6];
+  _analogData[3] = tempData[2];
+  _analogData[4] = tempData[4];
+  _analogData[5] = tempData[3];
+  _analogData[6] = tempData[1];
+  _analogData[7] = tempData[0];
+  _analogData[8] = tempData[8];
 }

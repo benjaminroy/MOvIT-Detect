@@ -14,10 +14,11 @@ class ForceSensor
     bool IsUserDetected();
 
     pressure_mat_offset_t GetOffsets();
-    uint16_t GetAnalogData(uint8_t index);
-
     void SetOffsets(pressure_mat_offset_t offset);
-    void SetAnalogData(uint8_t index, uint16_t analogdata) { _analogData[index] = analogdata; }
+
+    uint16_t GetAnalogData(uint8_t index) {return _analogData[index];}
+    void SetAnalogData(uint8_t index, uint16_t analogData) {RearrangeADCData(index, analogData);}
+    uint16_t RearrangeADCData(uint8_t index, uint16_t analogdata);
 
   private:
     uint16_t _analogData[PRESSURE_SENSOR_COUNT];
