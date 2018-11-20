@@ -249,24 +249,103 @@ bool DeviceManager::TestDevices()
     printf("\n.-.--..--- TEST MENU .--.---.--.-\n");
     printf("\n\tTestID\tDescription");
     //--------------------------------------------------------------------------
+    // MODULE : Notification
+    // PCB Validation tests:
+    printf("\n\t 0 \t LEDs RG (notif) validation");
+    printf("\n\t 1 \t DC motor - buzzer (notif) validation");
+    // Functionnal tests:
+    printf("\n\t 2 \t Blink alarm (notif) validation");
+    //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     // MODULE : Pressure Sensor
     // PCB Validation tests:
-    printf("\n\t 1 \t Force sensors (ADC) validation");
+    printf("\n\t 5 \t Force sensors (ADC) validation");
     // Functionnal tests:
-    printf("\n\t 2 \t Force sensors calibration validation");
-    printf("\n\t 3 \t Presence detection validation");
-    printf("\n\t 4 \t Force plates validation");
-    printf("\n\t 5 \t Centers of pressure validation");
+    printf("\n\t 6 \t Force sensors calibration validation");
+    printf("\n\t 7 \t Presence detection validation");
+    printf("\n\t 8 \t Force plates validation");
+    printf("\n\t 9 \t Centers of pressure validation");
     //--------------------------------------------------------------------------
     printf("\n");
     printf("\nEnter a Test No. and press the return key to run test\n");
+    printf("Press 'q' to close test menu\n");
     char testNoID = getchar();
     int loop = 0;
     getchar(); // To consume '\n'
 
     switch(testNoID)
     {
+      case '0':
+      {
+        printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+        printf("TEST NO. : %c\n", testNoID);
+        printf("LEDs RG (notif) validation\n");
+        while(loop != 27)
+        {
+          printf("\nGREEN LED ON - ENTER for next test");
+              _alarm.TurnOnGreenLed();
+              _alarm.TurnOffRedLed();
+          getchar();
+
+          printf("RED LED ON - ENTER for next test");
+              _alarm.TurnOnRedLed();
+              _alarm.TurnOffGreenLed();
+          getchar();
+
+          printf("BLINK GREEN-RED - ENTER to power off LEDs");
+          _alarm.TurnOnBlinkLedsAlarmThread().detach();
+          getchar();
+          _alarm.StopBlinkLedsAlarm();
+
+          printf("\nENTER to retstart test sequence\n");
+          printf("ESC+ENTER to exit test sequence\n");
+          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+          loop = getchar();
+        }
+        getchar();
+        break;
+      }
       case '1':
+      {
+        printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+        printf("TEST NO. : %c\n", testNoID);
+        printf("DC motor (notif) validation\n");
+        while(loop != 27)
+        {
+          printf("\nDC MOTOR/BUZZER ON - ENTER to power off DC motor");
+          _alarm.TurnOnDCMotor();
+          getchar();
+          _alarm.TurnOffDCMotor();
+
+          printf("\nENTER to retstart test sequence\n");
+          printf("ESC+ENTER to exit test sequence\n");
+          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+          loop = getchar();
+        }
+        getchar();
+        break;
+      }
+      case '2':
+      {
+        printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+        printf("TEST NO. : %c\n", testNoID);
+        printf("RED BLINK ALARM (notif) validation\n");
+        while(loop != 27)
+        {
+          printf("\nALARM ON - ENTER to stop alarm");
+          _alarm.TurnOnBlinkRedAlarmThread().detach();
+          getchar();
+          _alarm.StopBlinkRedAlarm();
+
+          printf("\nENTER to retstart test sequence\n");
+          printf("ESC+ENTER to exit test sequence\n");
+          printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+          loop = getchar();
+        }
+        getchar();
+        break;
+      }
+      case '5':
       {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
@@ -292,7 +371,7 @@ bool DeviceManager::TestDevices()
         getchar();
         break;
       }
-      case '2':
+      case '6':
       {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
@@ -326,7 +405,7 @@ bool DeviceManager::TestDevices()
       getchar();
       break;
       }
-      case '3':
+      case '7':
       {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
@@ -367,7 +446,7 @@ bool DeviceManager::TestDevices()
         getchar();
         break;
       }
-      case '4':
+      case '8':
       {
         printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
         printf("TEST NO. : %c\n", testNoID);
@@ -403,23 +482,26 @@ bool DeviceManager::TestDevices()
         getchar();
         break;
       }
+      case 'q':
+      {
+          return true;
+      }
       default:
       {
           printf("\nInvalid testNoID = %i\n", testNoID);
       }
     }
+    return false;
+  }
     // if (inSerialChar == 'a')
 
     // printf("\n\nFunction testing :");
     // printf("\n\tTestID\tDescription");
-    // printf("\n\t a \t Activate GREEN LED on notification module");
-    // printf("\n\t b \t Activate RED LED on notification module");
-    // printf("\n\t c \t Activate DC Motor on notification module");
+
     // printf("\n\t d \t Activate blink leds alarm.");
     // printf("\n\t e \t Activate red alarm.");
     // //printf("\n\t f \t Activate force sensors calibration");
     // //printf("\n\t g \t Check force sensors centers of pressure");
-    // printf("\n\t h \t De-activate all R&G LED + DC Motor");
     // printf("\n\t i \t Activate IMU calibration");
     // //printf("\n\t j \t Detect relative pressure in quadrants");
     // printf("\n\t k \t Print date and time");
@@ -596,6 +678,3 @@ bool DeviceManager::TestDevices()
     // {
     //     return true;
     // }
-
-    return false;
-}
