@@ -277,12 +277,64 @@ bool DeviceManager::TestDevices()
   {
     case '1':
     {
-      //asda
+      subTestExit = 0;
+      while (subTestExit != 1)
+      {
+        printf("\nMODULE HEADER RASPBERRY PI\n");
 
+        printf("\n.-.--..--- HEADER RASPBERRY PI TEST MENU .--.---.--.-\n");
+        printf("\nTestID\tDescription");
+        printf("\n--------------------------------------");
+        printf("\n 1 \t RTC date and time validation");
+        printf("\n q \t *Back to Main Test Menu");
+        printf("\n--------------------------------------");
+        printf("\nEnter a Test No. and press the return key to run test\n");
+        testNoID = getchar();
+        getchar(); // To consume '\n'
+        loopTest = 0;
 
+        switch (testNoID)
+        {
+        case '1':
+        {
+          printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+          printf("TEST NO. : %c\n", testNoID);
+          printf("RTC date and time validation\n");
+          while (loopTest != 27)
+          {
+            time_t currentTimeRTC = _datetimeRTC->GetRTCCurrentTime();
+            time_t currentTimeSys = _datetimeRTC->GetSystemCurrentTime();
+            struct tm datetimeRTC;
+            struct tm datetimeSys;
+            char buf[80];
+            // Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
+            datetimeRTC = *localtime(&currentTimeRTC);
+            datetimeSys = *localtime(&currentTimeSys);
+            strftime(buf, sizeof(buf), "%a %Y-%m-%d\n%H:%M:%S %Z", &datetimeRTC);
+            printf("\nRTC CURRENT DATE AND TIME\n%s\n", buf);
+            strftime(buf, sizeof(buf), "%a %Y-%m-%d\n%H:%M:%S %Z", &datetimeSys);
+            printf("\nSystem CURRENT DATE AND TIME\n%s\n", buf);
 
-
-      printf("\nModule Header Raspberry Pi\n");
+            printf("\nENTER to restart test sequence\n");
+            printf("ESC+ENTER to exit test sequence\n");
+            printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+            loopTest = getchar();
+          }
+          getchar();
+          break;
+        }
+        case 'q':
+        {
+          subTestExit = 1;
+          break;
+        }
+        default:
+        {
+          printf("\nInvalid TestID = %i\n", testNoID);
+        }
+          break;
+        }
+      }
       break;
     }
     case '2':
@@ -423,6 +475,7 @@ bool DeviceManager::TestDevices()
           break;
         }
       }
+      break;
     }
     case '3':
     {
@@ -493,180 +546,188 @@ bool DeviceManager::TestDevices()
     }
     case '4':
     {
-      printf("\nModule Pressure Mat\n");
-      // // MODULE : Pressure Sensor
-      // // PCB Validation tests:
-      // printf("\n\t 5 \t Force sensors (ADC) validation");
-      // // Functionnal tests:
-      // printf("\n\t 6 \t Force sensors calibration validation");
-      // printf("\n\t 7 \t Presence detection validation");
-      // printf("\n\t 8 \t Force plates validation");
-      // printf("\n\t 9 \t Centers of pressure validation");
+      subTestExit = 0;
+      while (subTestExit != 1)
+      {
+        printf("\nMODULE PRESSURE MAT\n");
 
-      // case '5':
-      // {
-      //     printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
-      //     printf("TEST NO. : %c\n", testNoID);
-      //     printf("Force sensors (ADC) validation\n");
-      //     while (loopTest != 27)
-      //     {
-      //         _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
-      //         for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-      //         {
-      //             _forceSensor.SetAnalogData(i, _max11611Data[i]);
-      //         }
-      //         printf("\nFORCE SENSORS VALUES\n");
-      //         printf("Sensor Number \t Analog value\n");
-      //         for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-      //         {
-      //             printf("Sensor No: %i \t %i\n", i + 1, (_forceSensor.GetAnalogData(i)));
-      //         }
-      //         printf("\nENTER to repeat test\n");
-      //         printf("ESC+ENTER to exit test\n");
-      //         printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-      //         loopTest = getchar();
-      //     }
-      //     getchar();
-      //     break;
-      // }
-      // case '6':
-      // {
-      //     printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
-      //     printf("TEST NO. : %c\n", testNoID);
-      //     printf("Force sensors calibration validation\n");
-      //     while (loopTest != 27)
-      //     {
-      //         _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
-      //         for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-      //         {
-      //             _forceSensor.SetAnalogData(i, _max11611Data[i]);
-      //         }
-      //         printf("\nCalibration Start ...");
-      //         const uint8_t maxIterations = 5; //5s instead of 10s to acelerate tests
-      //         _forceSensor.CalibrateForceSensor(_max11611, _max11611Data, maxIterations);
-      //
-      //         printf("\nINITIAL OFFSET VALUES\n");
-      //         printf("Sensor Number\tAnalog Offset\n");
-      //         pressure_mat_offset_t forceSensor = _forceSensor.GetOffsets();
-      //         for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-      //         {
-      //             printf("Sensor No: %i \t %u \n", i + 1, forceSensor.analogOffset[i]);
-      //         }
-      //         printf("\nSensor mean from calibration : \t %f \n", forceSensor.totalSensorMean);
-      //         printf("Detection Threshold : %f \n", forceSensor.detectionThreshold);
-      //
-      //         printf("\nENTER to repeat test\n");
-      //         printf("ESC+ENTER to exit test\n");
-      //         printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-      //         loopTest = getchar();
-      //     }
-      //     getchar();
-      //     break;
-      // }
-      // case '7':
-      // {
-      //     printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
-      //     printf("TEST NO. : %c\n", testNoID);
-      //     printf("Presence detection validation\n");
-      //     while (loopTest != 27)
-      //     {
-      //         _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
-      //         for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-      //         {
-      //             _forceSensor.SetAnalogData(i, _max11611Data[i]);
-      //         }
-      //         uint16_t sensedPresence = 0;
-      //         for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-      //         {
-      //             sensedPresence += _forceSensor.GetAnalogData(i);
-      //         }
-      //         if (PRESSURE_SENSOR_COUNT != 0)
-      //         {
-      //             sensedPresence /= PRESSURE_SENSOR_COUNT;
-      //         }
-      //         pressure_mat_offset_t forceSensor = _forceSensor.GetOffsets();
-      //         printf("\nSensed presence (mean(Analog Value)) = %i\n", sensedPresence);
-      //         printf("Detection Threshold set to : %f \n", forceSensor.detectionThreshold);
-      //         printf("Presence detection result : ");
-      //         if (_forceSensor.IsUserDetected())
-      //         {
-      //             printf("User detected \n");
-      //         }
-      //         else
-      //         {
-      //             printf("No user detected \n");
-      //         }
-      //         printf("\nENTER to repeat test\n");
-      //         printf("ESC+ENTER to exit test\n");
-      //         printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-      //         loopTest = getchar();
-      //     }
-      //     getchar();
-      //     break;
-      // }
-      // case '8':
-      // {
-      //     printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
-      //     printf("TEST NO. : %c\n", testNoID);
-      //     printf("Force plates validation\n");
-      //     while (loopTest != 27)
-      //     {
-      //         _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
-      //         for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-      //         {
-      //             _forceSensor.SetAnalogData(i, _max11611Data[i]);
-      //         }
-      //         _forcePlates.UpdateForcePlateData();
-      //         pressure_mat_data_t forcePlates = _forcePlates.GetPressureMatData();
-      //         printf("\nFORCE PLATES CENTER OF PRESSURES\n");
-      //         printf("Relative position of the center of pressure for each quadrants (inches) \n");
-      //         printf("COP Axis \t forcePlate1 \t forcePlate2 \t forcePlate3 \t forcePlate4 \n");
-      //         printf("COP (X): \t %f \t %f \t %f \t %f \n",
-      //                forcePlates.quadrantPressure[1].x,
-      //                forcePlates.quadrantPressure[2].x,
-      //                forcePlates.quadrantPressure[3].x,
-      //                forcePlates.quadrantPressure[4].x);
-      //         printf("COP (Y): \t %f \t\%f \t %f \t %f \n",
-      //                forcePlates.quadrantPressure[1].y,
-      //                forcePlates.quadrantPressure[2].y,
-      //                forcePlates.quadrantPressure[3].y,
-      //                forcePlates.quadrantPressure[4].y);
-      //
-      //         printf("\nENTER to repeat test\n");
-      //         printf("ESC+ENTER to exit test\n");
-      //         printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-      //         loopTest = getchar();
-      //     }
-      //     getchar();
-      //     break;
-      // }
-      // case 'q':
-      // {
-      //     return true;
-      // }
-      // default:
-      // {
-      //     printf("\nInvalid testNoID = %i\n", testNoID);
-      // }
-      // }
-      break;
-    }
-    case '5':
-    {
-      printf("\nModule Camera\n");
-      break;
-    }
-    case 'q':
-    {
-        return true;
-    }
-    default:
-    {
+        printf("\n.-.--..--- PRESSURE MAT TEST MENU .--.---.--.-\n");
+        printf("\nTestID\tDescription");
+        printf("\n--------------------------------------");
+        printf("\n 1 \t Force sensors (ADC) validation");
+        printf("\n 2 \t Force sensors calibration validation");
+        printf("\n 3 \t Presence detection validation");
+        printf("\n 4 \t Force plates validation");
+        printf("\n 5 \t Centers of pressure validation");
+        printf("\n q \t *Back to Main Test Menu");
+        printf("\n--------------------------------------");
+        printf("\nEnter a Test No. and press the return key to run test\n");
+        testNoID = getchar();
+        getchar(); // To consume '\n'
+        loopTest = 0;
+
+        switch (testNoID)
+        {
+          case '1':
+          {
+            printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+            printf("TEST NO. : %c\n", testNoID);
+            printf("Force sensors (ADC) validation\n");
+            while (loopTest != 27)
+            {
+                _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
+                for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+                {
+                    _forceSensor.SetAnalogData(i, _max11611Data[i]);
+                }
+                printf("\nFORCE SENSORS VALUES\n");
+                printf("Sensor Number \t Analog value\n");
+                for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+                {
+                    printf("Sensor No: %i \t %i\n", i + 1, (_forceSensor.GetAnalogData(i)));
+                }
+                printf("\nENTER to repeat test\n");
+                printf("ESC+ENTER to exit test\n");
+                printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+                loopTest = getchar();
+            }
+            getchar();
+            break;
+          }
+          case '2':
+          {
+            printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+            printf("TEST NO. : %c\n", testNoID);
+            printf("Force sensors calibration validation\n");
+            while (loopTest != 27)
+            {
+              PressureMat *pressureMat = PressureMat::GetInstance();
+              pressureMat->Calibrate();
+              pressureMat->Update();
+
+              printf("\nINITIAL OFFSET VALUES\n");
+              printf("Sensor Number\tAnalog Offset\n");
+              pressure_mat_offset_t forceSensor = pressureMat->GetOffsets();
+              for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+              {
+                  printf("Sensor No: %i \t %u \n", i + 1, forceSensor.analogOffset[i]);
+              }
+              printf("\nSensor mean from calibration : \t %f \n", forceSensor.totalSensorMean);
+              printf("Detection Threshold : %f \n", forceSensor.detectionThreshold);
+
+              printf("\nENTER to repeat test\n");
+              printf("ESC+ENTER to exit test\n");
+              printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+              loopTest = getchar();
+            }
+            getchar();
+            break;
+          }
+          case '3':
+          {
+            printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+            printf("TEST NO. : %c\n", testNoID);
+            printf("Presence detection validation\n");
+            while (loopTest != 27)
+            {
+              PressureMat *pressureMat = PressureMat::GetInstance();
+              pressureMat->Update();
+              pressure_mat_offset_t forceSensor = pressureMat->GetOffsets();
+              uint16_t sensedPresence = 0;
+
+              for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
+              {
+                  sensedPresence += forceSensor.analogOffset[i];
+              }
+              if (PRESSURE_SENSOR_COUNT != 0)
+              {
+                  sensedPresence /= PRESSURE_SENSOR_COUNT;
+              }
+              printf("\nSensed presence (mean(Analog Value)) = %i\n", sensedPresence);
+              printf("Detection Threshold set to : %f \n", forceSensor.detectionThreshold);
+              printf("Presence detection result : ");
+              if (_forceSensor.IsUserDetected())
+              {
+                  printf("User detected \n");
+              }
+              else
+              {
+                  printf("No user detected \n");
+              }
+              printf("\nENTER to repeat test\n");
+              printf("ESC+ENTER to exit test\n");
+              printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+              loopTest = getchar();
+            }
+            getchar();
+            break;
+          }
+          case '4':
+          {
+            printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+            printf("TEST NO. : %c\n", testNoID);
+            printf("Force plates validation\n");
+            PressureMat *pressureMat = PressureMat::GetInstance();
+            pressureMat->Calibrate();
+            pressure_mat_data_t pressureMatData = pressureMat->GetPressureMatData();
+
+            while (loopTest != 27)
+            {
+                pressureMat->Update();
+                pressureMat->UpdateForcePlateData();
+                pressureMatData = pressureMat->GetPressureMatData();
+
+                printf("\nFORCE PLATES CENTER OF PRESSURES\n");
+                printf("Relative position of the center of pressure for each quadrants (inches) \n");
+                printf("COP Axis \t forcePlate1 \t forcePlate2 \t forcePlate3 \t forcePlate4 \n");
+                printf("COP (X): \t %f \t %f \t %f \t %f \n",
+                       pressureMatData.quadrantPressure[0].x,
+                       pressureMatData.quadrantPressure[1].x,
+                       pressureMatData.quadrantPressure[2].x,
+                       pressureMatData.quadrantPressure[3].x);
+                printf("COP (Y): \t %f \t\%f \t %f \t %f \n",
+                       pressureMatData.quadrantPressure[0].y,
+                       pressureMatData.quadrantPressure[1].y,
+                       pressureMatData.quadrantPressure[2].y,
+                       pressureMatData.quadrantPressure[3].y);
+                printf("\nENTER to repeat test\n");
+                printf("ESC+ENTER to exit test\n");
+                printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+                loopTest = getchar();
+            }
+            getchar();
+            break;
+            }
+            case 'q':
+            {
+              subTestExit = 1;
+              break;
+            }
+            default:
+            {
+              printf("\nInvalid TestID = %i\n", testNoID);
+            }
+            break;
+          }
+        }
+        break;
+      }
+      case '5':
+      {
+        printf("\nModule Camera\n");
+        break;
+      }
+      case 'q':
+      {
+          return true;
+      }
+      default:
+      {
         printf("\nInvalid Module ID = %i\n", moduleID);
+      }
     }
-  }
-    return false;
-  }
+  return false;
+}
 
 
     // //printf("\n\t g \t Check force sensors centers of pressure");
