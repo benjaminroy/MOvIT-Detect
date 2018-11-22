@@ -3,6 +3,7 @@
 
 #include "MAX11611.h"
 #include "Utils.h"
+#include "DataType.h"
 
 class ForceSensor
 {
@@ -25,8 +26,8 @@ class ForceSensor
 
     MAX11611 _max11611;
     uint16_t _max11611Data[PRESSURE_SENSOR_COUNT];
-    
-    float _totalSensorMean;
+    uint32_t _totalSensorMean;
+
     float _detectionThreshold;
 };
 

@@ -17,8 +17,6 @@ class ChairManager
     ChairManager(MosquittoBroker *mosquittoBroker, DeviceManager *deviceManager);
     ~ChairManager();
 
-    void SendSensorsState();
-    void UpdateSensor(int device, bool isConnected);
     void UpdateDevices();
     void ReadFromServer();
     void CheckNotification();
@@ -38,7 +36,6 @@ class ChairManager
     MosquittoBroker *_mosquittoBroker;
     DeviceManager *_deviceManager;
 
-    int _updateDevicesCounter = 0;
     SecondsCounter _secondsCounter;
     uint8_t _state = 0;
 
@@ -52,16 +49,13 @@ class ChairManager
     bool _isMoving = false;
     bool _isChairInclined = false;
     bool _isWifiChanged = false;
-    bool _overrideNotificationPattern = false;
     bool _setAlarmOn = false;
     bool _isVibrationsActivated = true;
     bool _isIMUCalibrationChanged = false;
     bool _isPressureMatCalibrationChanged = false;
 
     pressure_mat_data_t _pressureMatData;
-    int _requiredBackRestAngle = 0;
-    uint32_t _requiredPeriod = 0;
-    uint32_t _requiredDuration = 0;
+    tilt_settings_t _tiltSettings;
 
     Timer _centerOfPressureTimer;
     Timer _wifiChangedTimer;

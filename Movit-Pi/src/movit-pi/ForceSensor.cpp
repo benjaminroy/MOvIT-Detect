@@ -68,7 +68,7 @@ void ForceSensor::CalibrateForceSensor(MAX11611 &max11611, uint16_t *max11611Dat
 
     const float calibrationRatio = 0.75;
     uint16_t sensorMean[PRESSURE_SENSOR_COUNT]; //Individual iterations sensors mean
-    uint32_t _totalSensorMean = 0;              //Final sensors analog data reading mean
+    _totalSensorMean = 0;                       //Final sensors analog data reading mean
 
     //Sensor mean table initialization
     for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
@@ -109,9 +109,9 @@ void ForceSensor::CalibrateForceSensor(MAX11611 &max11611, uint16_t *max11611Dat
     _totalSensorMean /= maxIterations;
     _detectionThreshold = calibrationRatio * _totalSensorMean;
     printf("\ntotalmeansen = %i \n", _totalSensorMean);
-    printf("detectionThreshold = %f\n", _detectionThreshold);
+    printf("\ndetectionThreshold = %f\n", _detectionThreshold);
 
-    printf("DONE\n");
+    printf("\nDONE\n");
 }
 
 //---------------------------------------------------------------------------------------

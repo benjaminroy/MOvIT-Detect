@@ -27,7 +27,6 @@ const char *ALARM_TOPIC = "data/set_alarm";
 const char *REQUIRED_ANGLE_TOPIC = "data/required_back_rest_angle";
 const char *REQUIRED_PERIOD_TOPIC = "data/required_period";
 const char *REQUIRED_DURATION_TOPIC = "data/required_duration";
-const char *REQUIRED_SNOOZE_TIME_TOPIC = "data/required_snooze_time";
 const char *CALIB_PRESSURE_MAT_TOPIC = "config/calib_pressure_mat";
 const char *CALIB_IMU_TOPIC = "config/calib_imu";
 const char *NOTIFICATIONS_SETTINGS_TOPIC = "config/notifications_settings";
@@ -43,7 +42,6 @@ const char *VIBRATION_TOPIC = "data/vibration";
 const char *IS_MOVING_TOPIC = "data/is_moving";
 const char *TILT_INFO_TOPIC = "data/tilt_info";
 
-const char *SENSOR_STATUS_TOPIC = "status/sensor";
 const char *SENSORS_STATUS_TOPIC = "status/sensors";
 
 const char *EXCEPTION_MESSAGE = "Exception thrown by %s()\n";
@@ -99,7 +97,6 @@ void MosquittoBroker::on_connect(int rc)
         subscribe(NULL, CALIB_IMU_TOPIC);
         subscribe(NULL, NOTIFICATIONS_SETTINGS_TOPIC);
         subscribe(NULL, SELECT_WIFI_TOPIC);
-        subscribe(NULL, REQUIRED_SNOOZE_TIME_TOPIC);
     }
 }
 
@@ -153,45 +150,45 @@ void MosquittoBroker::on_message(const mosquitto_message *msg)
     {
         try
         {
-            _requiredBackRestAngle = std::stoi(message);
-            _requiredBackRestAngleNew = true;
+            _tiltSettings.requiredBackRestAngle = std::stoi(message);
+            _isTiltSettingsChanged = true;
         }
         catch (const std::exception &e)
         {
             printf(EXCEPTION_MESSAGE, e.what());
             printf("Setting _requiredBackRestAngle to 0 and _requiredBackRestAngleNew to false\n");
-            _requiredBackRestAngle = 0;
-            _requiredBackRestAngleNew = false;
+            _tiltSettings.requiredBackRestAngle = 0;
+            _isTiltSettingsChanged = false;
         }
     }
     else if (topic == REQUIRED_PERIOD_TOPIC)
     {
         try
         {
-            _requiredPeriod = std::stoi(message);
-            _requiredPeriodNew = true;
+            _tiltSettings.requiredPeriod = std::stoi(message);
+            _isTiltSettingsChanged = true;
         }
         catch (const std::exception &e)
         {
             printf(EXCEPTION_MESSAGE, e.what());
             printf("Setting _requiredPeriod to 0 and _requiredPeriodNew to false\n");
-            _requiredPeriod = 0;
-            _requiredPeriodNew = false;
+            _tiltSettings.requiredPeriod = 0;
+            _isTiltSettingsChanged = false;
         }
     }
     else if (topic == REQUIRED_DURATION_TOPIC)
     {
         try
         {
-            _requiredDuration = std::stoi(message);
-            _requiredDurationNew = true;
+            _tiltSettings.requiredDuration = std::stoi(message);
+            _isTiltSettingsChanged = true;
         }
         catch (const std::exception &e)
         {
             printf(EXCEPTION_MESSAGE, e.what());
             printf("Setting _requiredDuration to 0 and _requiredDurationNew to false\n");
-            _requiredDuration = 0;
-            _requiredDurationNew = false;
+            _tiltSettings.requiredDuration = 0;
+            _isTiltSettingsChanged = false;
         }
     }
     else if (topic == CALIB_PRESSURE_MAT_TOPIC)
@@ -222,12 +219,20 @@ void MosquittoBroker::on_message(const mosquitto_message *msg)
     }
     else if (topic == NOTIFICATIONS_SETTINGS_TOPIC)
     {
-        _notificationsSettings = message;
+        Document document;
+        document.Parse(message.c_str());
+
+        // Pour une certaine raison obscure, je ne suis pas capable de gerer le cas
+        // ou il n'y a pas d'object notifications_settings. Pas cool rapidjson
+        if (document["notifications_settings"].IsObject())
+        {
+            Value &object = document["notifications_settings"];
+            _notificationsSettings.isLedBlinkingEnabled = object["isLedBlinkingEnabled"].GetBool();
+            _notificationsSettings.isVibrationEnabled = object["isVibrationEnabled"].GetBool();
+            _notificationsSettings.snoozeTime = object["snoozeTime"].GetFloat();
+        }
+
         _isNotificationsSettingsChanged = true;
-    }
-    else
-    {
-        throw "Error: Invalid topic";
     }
 }
 
@@ -365,51 +370,26 @@ void MosquittoBroker::SendHeartbeat(const std::string datetime)
     PublishMessage(HEARTBEAT_TOPIC, strMsg);
 }
 
-void MosquittoBroker::SendSensorsState(const bool alarmStatus, const bool mobileImuStatus,
-                                       const bool fixedImuStatus, const bool motionSensorStatus, const bool plateSensorStatus,
-                                       const std::string datetime)
+void MosquittoBroker::SendSensorsState(sensor_state_t sensorState, const std::string datetime)
 {
-    std::string strMsg = "{"
-        "\"datetime\":" +  datetime + ","
-        "\"alarm\":" + std::to_string(alarmStatus) + ","
-        "\"mobileImu\":" + std::to_string(mobileImuStatus) + ","
-        "\"fixedImu\":" + std::to_string(fixedImuStatus) + ","
-        "\"motionSensor\":" + std::to_string(motionSensorStatus) + ","
-        "\"forcePlate\":" + std::to_string(plateSensorStatus) + "}";
+    StringBuffer strBuff;
+    Writer<StringBuffer> writer(strBuff);
+    writer.StartObject();
 
-    PublishMessage(SENSORS_STATUS_TOPIC, strMsg);
-}
+    writer.Key("notificationModule");
+    writer.Bool(sensorState.notificationModuleValid);
+    writer.Key("fixedAccelerometer");
+    writer.Bool(sensorState.fixedAccelerometerValid);
+    writer.Key("mobileAccelerometer");
+    writer.Bool(sensorState.mobileAccelerometerValid);
+    writer.Key("pressureMat");
+    writer.Bool(sensorState.pressureMatValid);
+    writer.Key("datetime");
+    writer.String(datetime.c_str());
 
-void MosquittoBroker::SendSensorState(const int device, const bool status, const std::string datetime)
-{
-    std::string sensorName;
+    writer.EndObject();
 
-    switch (device)
-    {
-        case alarmSensor:
-            sensorName = "alarm";
-            break;
-        case mobileImu:
-            sensorName = "mobileImu";
-            break;
-        case fixedImu:
-            sensorName = "fixedImu";
-            break;
-        case motionSensor:
-            sensorName = "motionSensor";
-            break;
-        case plateSensor:
-            sensorName = "plateSensor";
-            break;
-        default:
-            throw "Error: Invalid device";
-            break;
-    }
-
-    const std::string strState = std::to_string(status);
-    const std::string strMsg = "{\"datetime\":" + datetime + ",\"" + sensorName + "\":" + strState + "}";
-
-    PublishMessage(SENSORS_STATUS_TOPIC, strMsg);
+    PublishMessage(SENSORS_STATUS_TOPIC, strBuff.GetString());
 }
 
 bool MosquittoBroker::GetSetAlarmOn()
@@ -418,22 +398,10 @@ bool MosquittoBroker::GetSetAlarmOn()
     return _setAlarmOn;
 }
 
-uint32_t MosquittoBroker::GetRequiredBackRestAngle()
+tilt_settings_t MosquittoBroker::GetTiltSettings()
 {
-    _requiredBackRestAngleNew = false;
-    return _requiredBackRestAngle;
-}
-
-uint32_t MosquittoBroker::GetRequiredPeriod()
-{
-    _requiredPeriodNew = false;
-    return _requiredPeriod;
-}
-
-uint32_t MosquittoBroker::GetRequiredDuration()
-{
-    _requiredDurationNew = false;
-    return _requiredDuration;
+    _isTiltSettingsChanged = false;
+    return _tiltSettings;
 }
 
 std::string MosquittoBroker::GetWifiInformation()
@@ -442,7 +410,7 @@ std::string MosquittoBroker::GetWifiInformation()
     return _wifiInformation;
 }
 
-std::string MosquittoBroker::GetNotificationsSettings()
+notifications_settings_t MosquittoBroker::GetNotificationsSettings()
 {
     _isNotificationsSettingsChanged = false;
     return _notificationsSettings;

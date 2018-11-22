@@ -1,5 +1,6 @@
 #include "FileManager.h"
 #include "Utils.h"
+#include "DataType.h"
 #include "rapidjson/document.h"
 #include <iostream>
 #include <fstream>
@@ -11,6 +12,7 @@ using rapidjson::Writer;
 using std::string;
 
 const string SETTINGS_FILENAME = "settings.txt";
+const string TILTS_SETTINGS_OBJECT = "tilt_settings";
 const string NOTIFICATIONS_SETTINGS_OBJECT = "notifications_settings";
 const string PRESSURE_MAT_OBJECT = "pressure_mat_offset";
 const string FIXED_IMU_OBJECT = "fixed_imu_offset";
@@ -39,6 +41,7 @@ void FileManager::Read()
             _notificationsSettings = ParseNotificationsSettings(doc);
             _fixedImuOffset = ParseIMUOffset(doc, FIXED_IMU_OBJECT);
             _mobileImuOffset = ParseIMUOffset(doc, MOBILE_IMU_OBJECT);
+            _tiltSettings = ParseTiltSettings(doc);
         }
     }
     file.close();
@@ -54,6 +57,7 @@ void FileManager::Save()
     FormatImuOffset(writer, _fixedImuOffset, FIXED_IMU_OBJECT);
     FormatImuOffset(writer, _mobileImuOffset, MOBILE_IMU_OBJECT);
     FormatNotificationsSettings(writer, _notificationsSettings, NOTIFICATIONS_SETTINGS_OBJECT);
+    FormatTiltSettings(writer, _tiltSettings, TILTS_SETTINGS_OBJECT);
     writer.EndObject();
 
     std::fstream file;
@@ -120,6 +124,34 @@ void FileManager::FormatNotificationsSettings(Writer<StringBuffer> &writer, noti
     writer.Key("snoozeTime");
     writer.Double(notificationsSettings.snoozeTime);
     writer.EndObject();
+}
+
+void FileManager::FormatTiltSettings(Writer<StringBuffer> &writer, tilt_settings_t tiltSettings, string objectName)
+{
+    writer.Key(objectName.c_str());
+    writer.StartObject();
+    writer.Key("requiredBackRestAngle");
+    writer.Int(tiltSettings.requiredBackRestAngle);
+    writer.Key("requiredPeriod");
+    writer.Uint(tiltSettings.requiredPeriod);
+    writer.Key("requiredDuration");
+    writer.Uint(tiltSettings.requiredDuration);
+    writer.EndObject();
+}
+
+tilt_settings_t FileManager::ParseTiltSettings(rapidjson::Document &document)
+{
+    tilt_settings_t ret;
+
+    if (document["tilt_settings"].IsObject())
+    {
+        Value &object = document["tilt_settings"];
+        ret.requiredBackRestAngle = object["requiredBackRestAngle"].GetInt();
+        ret.requiredPeriod = object["requiredPeriod"].GetUint();
+        ret.requiredDuration = object["requiredDuration"].GetUint();
+    }
+
+    return ret;
 }
 
 notifications_settings_t FileManager::ParseNotificationsSettings(Document &document)
@@ -233,14 +265,4 @@ imu_offset_t FileManager::GetFixedImuOffsets()
     }
 
     return ret;
-}
-
-void FileManager::SetNotificationsSettings(string notificationsSettingsString)
-{
-    Document doc;
-    doc.Parse(notificationsSettingsString.c_str());
-    if (doc.IsObject())
-    {
-        _notificationsSettings = ParseNotificationsSettings(doc);
-    }
 }

@@ -46,49 +46,11 @@ ChairManager::~ChairManager()
 {
 }
 
-void ChairManager::SendSensorsState()
-{
-    _currentDatetime = std::to_string(_deviceManager->GetTimeSinceEpoch());
-
-    const bool isAlarmConnected = _deviceManager->IsAlarmConnected();
-    const bool isFixedImuConnected = _deviceManager->IsFixedImuConnected();
-    const bool isMobileImuConnected = _deviceManager->IsMobileImuConnected();
-    const bool isMotionSensorConnected = _deviceManager->IsMotionSensorConnected();
-    const bool isForcePlateConnected = _deviceManager->IsForcePlateConnected();
-
-    _mosquittoBroker->SendSensorsState(isAlarmConnected, isFixedImuConnected, isMobileImuConnected, isMotionSensorConnected, isForcePlateConnected, _currentDatetime);
-}
-
-void ChairManager::UpdateSensor(int device, bool isConnected)
-{
-    if (_deviceManager->IsSensorStateChanged(device))
-    {
-        _mosquittoBroker->SendSensorState(device, isConnected, _currentDatetime);
-    }
-    _deviceManager->ReconnectSensor(device);
-}
-
 void ChairManager::UpdateDevices()
 {
     _deviceManager->Update();
 
     _currentDatetime = std::to_string(_deviceManager->GetTimeSinceEpoch());
-
-    // Needs refactoring
-    if (++_updateDevicesCounter > CHECK_SENSORS_STATE_PERIOD)
-    {
-        UpdateSensor(DEVICES::alarmSensor, _deviceManager->IsAlarmConnected());
-        UpdateSensor(DEVICES::fixedImu, _deviceManager->IsFixedImuConnected());
-        UpdateSensor(DEVICES::mobileImu, _deviceManager->IsMobileImuConnected());
-        // UpdateSensor(DEVICES::motionSensor, _deviceManager->IsMotionSensorConnected());
-        _updateDevicesCounter = 0;
-    }
-
-    if (_mosquittoBroker->IsNotificationsSettingsChanged())
-    {
-        std::string notificationsSettingsStr =_mosquittoBroker->GetNotificationsSettings();
-        _deviceManager->UpdateNotificationsSettings(notificationsSettingsStr);
-    }
 
     if (_mosquittoBroker->CalibPressureMatRequired())
     {
@@ -114,12 +76,12 @@ void ChairManager::UpdateDevices()
 
     _prevIsSomeoneThere = _isSomeoneThere;
     _isSomeoneThere = _deviceManager->IsSomeoneThere();
+    _prevChairAngle = _currentChairAngle;
     _currentChairAngle = _deviceManager->GetBackSeatAngle();
     bool prevIsMoving = _isMoving;
     _isMoving = _deviceManager->IsMoving();
     _isChairInclined = _deviceManager->IsChairInclined();
     _pressureMatData = _deviceManager->GetPressureMatData();
-    _prevChairAngle = _currentChairAngle;
 
 #ifdef DEBUG_PRINT
     printf("\n");
@@ -128,6 +90,7 @@ void ChairManager::UpdateDevices()
     printf("_currentChairAngle = %i\n", _currentChairAngle);
     printf("_isMoving = %i\n", _isMoving);
     printf("_isChairInclined = %i\n", _isChairInclined);
+    printf("_snoozeTime = %f\n", _snoozeTime);
     printf("Global Center Of Pressure = X: %f Y: %f\n", _pressureMatData.centerOfPressure.x, _pressureMatData.centerOfPressure.y);
 #endif
 
@@ -167,6 +130,8 @@ void ChairManager::UpdateDevices()
     {
         _mosquittoBroker->SendIsMoving(_isMoving, _currentDatetime);
     }
+
+    _mosquittoBroker->SendSensorsState(_deviceManager->GetSensorState(), _currentDatetime);
 }
 
 void ChairManager::ReadVibrations()
@@ -198,30 +163,16 @@ void ChairManager::ReadFromServer()
 {
     if (_mosquittoBroker->IsSetAlarmOnNew())
     {
-        _overrideNotificationPattern = true;
         _setAlarmOn = _mosquittoBroker->GetSetAlarmOn();
         printf("Something new for setAlarmOn = %i\n", _setAlarmOn);
     }
-    if (_mosquittoBroker->IsRequiredBackRestAngleNew())
+    if (_mosquittoBroker->IsTiltSettingsChanged())
     {
-        _requiredBackRestAngle = _mosquittoBroker->GetRequiredBackRestAngle();
+        _tiltSettings = _mosquittoBroker->GetTiltSettings();
+        _deviceManager->UpdateTiltSettings(_tiltSettings);
         _secondsCounter = 0;
         _state = State::INITIAL;
-        printf("Something new for _requiredBackRestAngle = %i\n", _requiredBackRestAngle);
-    }
-    if (_mosquittoBroker->IsRequiredPeriodNew())
-    {
-        _requiredPeriod = _mosquittoBroker->GetRequiredPeriod();
-        _secondsCounter = 0;
-        _state = State::INITIAL;
-        printf("Something new for _requiredPeriod = %i\n", _requiredPeriod);
-    }
-    if (_mosquittoBroker->IsRequiredDurationNew())
-    {
-        _requiredDuration = _mosquittoBroker->GetRequiredDuration();
-        _secondsCounter = 0;
-        _state = State::INITIAL;
-        printf("Something new for _requiredDuration = %i\n", _requiredDuration);
+        printf("Something new for tilt settings\n");
     }
     if (_mosquittoBroker->IsWifiChanged())
     {
@@ -230,20 +181,26 @@ void ChairManager::ReadFromServer()
         _wifiChangedTimer.Reset();
     }
 
-    _snoozeTime = _deviceManager->GetSnoozeTime();
-    _deviceManager->GetAlarm()->DeactivateVibration(_deviceManager->IsVibrationEnabled());
-    _deviceManager->GetAlarm()->DeactivateLedBlinking(_deviceManager->IsLedBlinkingEnabled());
+    if (_mosquittoBroker->IsNotificationsSettingsChanged())
+    {
+        notifications_settings_t notificationsSettings = _mosquittoBroker->GetNotificationsSettings();
+        _deviceManager->UpdateNotificationsSettings(notificationsSettings);
+
+        _snoozeTime = notificationsSettings.snoozeTime * 60.0f;
+        _deviceManager->GetAlarm()->DeactivateVibration(!notificationsSettings.isVibrationEnabled);
+        _deviceManager->GetAlarm()->DeactivateLedBlinking(!notificationsSettings.isLedBlinkingEnabled);
+    }
 }
 
 void ChairManager::CheckNotification()
 {
-    if (_overrideNotificationPattern)
+    if (_setAlarmOn)
     {
         OverrideNotificationPattern();
         return;
     }
 
-    if (!_isSomeoneThere || _requiredDuration == 0 || _requiredPeriod == 0 || _requiredBackRestAngle == 0 || _isMoving)
+    if (!_isSomeoneThere || _tiltSettings.requiredDuration == 0 || _tiltSettings.requiredPeriod == 0 || _tiltSettings.requiredBackRestAngle == 0 || _isMoving)
     {
         _state = State::INITIAL;
         _secondsCounter = 0;
@@ -295,7 +252,8 @@ void ChairManager::NotificationSnoozed()
     if (_secondsCounter >= _snoozeTime)
     {
         _secondsCounter = 0;
-        _state = State::WAIT;
+        _state = State::CLIMB;
+        _failedTiltTimer.Reset();
     }
 }
 
@@ -305,7 +263,7 @@ void ChairManager::CheckIfBackRestIsRequired()
 
     printf("State WAIT\t_secondsCounter: %f\n", _secondsCounter.Value());
 
-    if (_secondsCounter >= _requiredPeriod && _currentChairAngle < MINIMUM_ANGLE)
+    if (_secondsCounter >= _tiltSettings.requiredPeriod && _currentChairAngle < MINIMUM_ANGLE)
     {
         if (!_isMoving && !_isChairInclined)
         {
@@ -329,7 +287,7 @@ void ChairManager::CheckIfBackRestIsRequired()
 
 void ChairManager::CheckIfRequiredBackSeatAngleIsReached()
 {
-    printf("State CLIMB\t abs(requiredBackRestAngle - _currentChairAngle): %i\n", abs(int(_requiredBackRestAngle) - int(_currentChairAngle)));
+    printf("State CLIMB\t abs(requiredBackRestAngle - _currentChairAngle): %i\n", abs(int(_tiltSettings.requiredBackRestAngle) - int(_currentChairAngle)));
 
     if ((_failedTiltTimer.Elapsed() > FAILED_TILT_TIME.count()) && (_currentChairAngle <= MINIMUM_ANGLE))
     {
@@ -345,8 +303,8 @@ void ChairManager::CheckIfRequiredBackSeatAngleIsReached()
         _failedTiltTimer.Reset();
     }
 
-    if ((_failedTiltTimer.Elapsed() > (_requiredDuration * SECONDS_TO_MILLISECONDS)) &&
-        (_currentChairAngle > MINIMUM_ANGLE && _currentChairAngle <= _requiredBackRestAngle))
+    if ((_failedTiltTimer.Elapsed() > (_tiltSettings.requiredDuration * SECONDS_TO_MILLISECONDS)) &&
+        (_currentChairAngle > MINIMUM_ANGLE && _currentChairAngle <= _tiltSettings.requiredBackRestAngle))
     {
         printf("Tilt too low\n");
         _state = State::WAIT;
@@ -365,7 +323,7 @@ void ChairManager::CheckIfRequiredBackSeatAngleIsReached()
         _mosquittoBroker->SendTiltInfo(TiltInfo::SNOOZED, _currentDatetime);
     }
 
-    if (_currentChairAngle > _requiredBackRestAngle)
+    if (_currentChairAngle > _tiltSettings.requiredBackRestAngle)
     {
         _alarm->StopBlinkRedAlarm();
         _alarm->TurnOnGreenAlarm();
@@ -377,13 +335,13 @@ void ChairManager::CheckIfRequiredBackSeatAngleIsMaintained()
 {
     printf("State STAY\n");
 
-    if (_currentChairAngle >= (_requiredBackRestAngle - DELTA_ANGLE_THRESHOLD))
+    if (_currentChairAngle >= (_tiltSettings.requiredBackRestAngle - DELTA_ANGLE_THRESHOLD))
     {
         _secondsCounter++;
 
         printf("State STAY\t_secondsCounter: %f\n", _secondsCounter.Value());
 
-        if (_secondsCounter >= _requiredDuration)
+        if (_secondsCounter >= _tiltSettings.requiredDuration)
         {
             if (!_alarm->IsBlinkGreenAlarmOn())
             {
@@ -391,16 +349,6 @@ void ChairManager::CheckIfRequiredBackSeatAngleIsMaintained()
             }
             _state = State::DESCEND;
         }
-    }
-    else if (_currentChairAngle < (_requiredBackRestAngle - DELTA_ANGLE_THRESHOLD))
-    {
-        printf("State STAY climb UP\n");
-        if (!_alarm->IsRedAlarmOn())
-        {
-            _alarm->TurnOnBlinkRedAlarmThread().detach();
-        }
-        _state = State::CLIMB;
-        _secondsCounter = 0;
     }
     else if (_currentChairAngle < MINIMUM_ANGLE)
     {
@@ -440,5 +388,4 @@ void ChairManager::OverrideNotificationPattern()
     {
         _alarm->TurnOffAlarm();
     }
-    _overrideNotificationPattern = false;
 }
