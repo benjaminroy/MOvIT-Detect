@@ -76,4 +76,8 @@ void ForcePlate::Update()
         //Coordinate of the force application point (C.O.P.)
         _centerOfPressure = {(-_my1 / _fz), (_mx1 / _fz)};
     }
+    else
+    {
+        _centerOfPressure = {0, 0};
+    }
 }

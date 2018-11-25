@@ -240,7 +240,7 @@ bool DeviceManager::TestDevices()
     printf("\n 2 \t Module Notification");
     printf("\n 3 \t Module IMU");
     printf("\n 4 \t Module Pressure Mat");
-    printf("\n 5 \t Module Camera");
+    printf("\n 5 \t Module Flow Sensor");
     printf("\n q \t *Close Main Test Menu");
     printf("\n--------------------------------------");
     printf("\n Enter a ModuleID and press ENTER to see module tests\n");
@@ -258,7 +258,7 @@ bool DeviceManager::TestDevices()
         subTestExit = 0;
         while (subTestExit != 1)
         {
-            printf("\nMODULE HEADER RASPBERRY PI\n");
+            printf("\nHEADER RASPBERRY PI MODULE\n");
 
             printf("\n.-.--..--- HEADER RASPBERRY PI TEST MENU .--.---.--.-\n");
             printf("\nTestID\tDescription");
@@ -320,7 +320,7 @@ bool DeviceManager::TestDevices()
         subTestExit = 0;
         while (subTestExit != 1)
         {
-            printf("\nMODULE NOTIFICATION\n");
+            printf("\nNOTIFICATION MODULE\n");
 
             printf("\n.-.--..--- NOTIFICATION TEST MENU .--.---.--.-\n");
             printf("\nTestID\tDescription");
@@ -397,8 +397,8 @@ bool DeviceManager::TestDevices()
                 {
                     printf("RED ALARM ON (3 sec.) - ENTER to stop alarm\n");
                     _alarm.TurnOnBlinkRedAlarmThread().detach();
-                    int alarmTime = 3;
-                    for (int i = 0; i < alarmTime; i++)
+                    uint8_t alarmTime = 3;
+                    for (uint8_t i = 0; i < alarmTime; i++)
                     {
                         printf("%i\n", (alarmTime - i));
                         sleep_for_milliseconds(1000);
@@ -421,7 +421,7 @@ bool DeviceManager::TestDevices()
                 while (loopTest != 27)
                 {
                     printf("\nPUSH BUTTON STATE\n");
-                    for (int i = 0; i < 5; i++)
+                    for (uint8_t i = 0; i < 5; i++)
                     {
                         if (_alarm.ButtonPressed())
                         {
@@ -460,7 +460,7 @@ bool DeviceManager::TestDevices()
         subTestExit = 0;
         while (subTestExit != 1)
         {
-            printf("\nMODULE IMUs\n");
+            printf("\nIMUs MODULE\n");
 
             printf("\n.-.--..--- IMUs TEST MENU .--.---.--.-\n");
             printf("\nTestID\tDescription");
@@ -527,7 +527,7 @@ bool DeviceManager::TestDevices()
         subTestExit = 0;
         while (subTestExit != 1)
         {
-            printf("\nMODULE PRESSURE MAT\n");
+            printf("\nPRESSURE MAT MODULE\n");
 
             printf("\n.-.--..--- PRESSURE MAT TEST MENU .--.---.--.-\n");
             printf("\nTestID\tDescription");
@@ -536,7 +536,7 @@ bool DeviceManager::TestDevices()
             printf("\n 2 \t Force sensors calibration validation");
             printf("\n 3 \t Presence detection validation");
             printf("\n 4 \t Force plates validation");
-            printf("\n 5 \t Centers of pressure validation");
+            printf("\n 5 \t Center of pressure validation");
             printf("\n q \t *Back to Main Test Menu");
             printf("\n--------------------------------------");
             printf("\nEnter a Test No. and press the return key to run test\n");
@@ -676,6 +676,33 @@ bool DeviceManager::TestDevices()
                 getchar();
                 break;
             }
+            case '5':
+            {
+                printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+                printf("TEST NO. : %c\n", testNoID);
+                printf("Center of pressure validation\n");
+                PressureMat *pressureMat = PressureMat::GetInstance();
+                pressureMat->Calibrate();
+                pressure_mat_data_t pressureMatData = pressureMat->GetPressureMatData();
+
+                while (loopTest != 27)
+                {
+                    pressureMat->Update();
+                    pressureMat->UpdateForcePlateData();
+                    pressureMatData = pressureMat->GetPressureMatData();
+
+                    printf("\nGLOBAL PLATES CENTER OF PRESSURE\n");
+                    printf("Relative position of the global center of pressure (inches) \n");
+                    printf("COP (X): \t %f\n", pressureMatData.centerOfPressure.x);
+                    printf("COP (Y): \t %f\n", pressureMatData.centerOfPressure.y);
+                    printf("\nENTER to repeat test\n");
+                    printf("ESC+ENTER to exit test\n");
+                    printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+                    loopTest = getchar();
+                }
+                getchar();
+                break;
+            }
             case 'q':
             {
                 subTestExit = 1;
@@ -692,8 +719,110 @@ bool DeviceManager::TestDevices()
     }
     case '5':
     {
-        printf("\nModule Camera\n");
-        break;
+        MotionSensor *motionSensor = MotionSensor::GetInstance();
+        subTestExit = 0;
+
+        while (subTestExit != 1)
+        {
+            printf("\n FLOW SENSOR MODULE\n");
+
+            printf("\n.-.--..--- FLOW SENSOR MODULE MENU .--.---.--.-\n");
+            printf("\nTestID\tDescription");
+            printf("\n--------------------------------------");
+            printf("\n 1 \t Range Sensor Validation");
+            printf("\n 2 \t Flow Sensor Validation");
+            printf("\n 3 \t Is Moving Validation");
+            printf("\n q \t *Back to Main Test Menu");
+            printf("\n--------------------------------------");
+            printf("\nEnter a Test No. and press the return key to run test\n");
+            testNoID = getchar();
+            getchar(); // To consume '\n'
+            loopTest = 0;
+
+            switch (testNoID)
+            {
+            case '1':
+            {
+                printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+                printf("TEST NO. : %c\n", testNoID);
+                printf("Range Sensor Validation\n");
+                while (loopTest != 27)
+                {
+                    printf("\nAim flow sensor at floor and press ENTER");
+                    getchar();
+
+                    printf("Distance from floor (mm): %u \n", motionSensor->GetRangeSensorValue());
+
+                    printf("\nENTER to repeat test\n");
+                    printf("ESC+ENTER to exit test\n");
+                    printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+                    loopTest = getchar();
+                }
+                getchar();
+                break;
+            }
+            case '2':
+            {
+                printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+                printf("TEST NO. : %c\n", testNoID);
+                printf("Flow Sensor Validation\n");
+                while (loopTest != 27)
+                {
+                    for (uint8_t i = 0; i < 5; i++)
+                    {
+                        Coord_t deltaPixel = motionSensor->GetFlowSensorValues();
+                        printf("Reading %i : Delta X: %f \tDelta Y: %f\n", i + 1, deltaPixel.x, deltaPixel.y);
+                        sleep_for_milliseconds(1000);
+                    }
+
+                    printf("\nENTER to repeat test\n");
+                    printf("ESC+ENTER to exit test\n");
+                    printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+                    loopTest = getchar();
+                }
+                getchar();
+                break;
+            }
+            case '3':
+            {
+                const uint8_t testTime = 10;
+                printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+                printf("TEST NO. : %c\n", testNoID);
+                printf("Slowly move the flow sensor for %u seconds.\n", testTime);
+                while (loopTest != 27)
+                {
+                    bool isMoving = false;
+                    for (uint8_t i = 0; i < testTime; i++)
+                    {
+                        printf("%i\n", testTime - i);
+                        if (motionSensor->IsMoving())
+                        {
+                            isMoving = true;
+                        }
+                        sleep_for_milliseconds(1000);
+                    }
+                    printf("Movement detected: %s", isMoving ? "TRUE" : "FALSE");
+
+                    printf("\nENTER to repeat test\n");
+                    printf("ESC+ENTER to exit test\n");
+                    printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+                    loopTest = getchar();
+                }
+                getchar();
+                break;
+            }
+            case 'q':
+            {
+                subTestExit = 1;
+                break;
+            }
+            default:
+            {
+                printf("\nInvalid TestID = %i\n", testNoID);
+            }
+            break;
+            }
+        }
     }
     case 'q':
     {
@@ -706,132 +835,6 @@ bool DeviceManager::TestDevices()
     }
     return false;
 }
-
-// //printf("\n\t g \t Check force sensors centers of pressure");
-// printf("\n\t i \t Activate IMU calibration");
-// //printf("\n\t j \t Detect relative pressure in quadrants");
-// printf("\n\t k \t Print date and time");
-
-// else if (inSerialChar == 'g')
-// {
-//
-//     uint16_t sensedPresence = 0;
-//     for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-//     {
-//         sensedPresence += _sensorMatrix.GetAnalogData(i);
-//     }
-//     if (PRESSURE_SENSOR_COUNT != 0)
-//     {
-//         sensedPresence /= PRESSURE_SENSOR_COUNT;
-//     }
-//
-//     printf("\nDEBUG CENTER OF PRESSURE FORCE SENSORS START");
-//     printf("\nFunction(s) under test:");
-//     printf("\n DetectCenterOfPressure()");
-//     printf("\n\t CreateForcePlate()");
-//     printf("\n\t AnalyseForcePlate()");
-//
-//     UpdateForcePlateData();
-//     _globalForcePlate.DetectCenterOfPressure(_globalForcePlate, _sensorMatrix);
-//
-//     printf("\n.-.--..---MESURE DES CAPTEURS DE FORCE--.---.--.-\n");
-//     printf("Sensor Number \t Analog value \t Voltage (mV) \t Force (N) \n");
-//     for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
-//     {
-//         printf("Sensor No: %i \t %i \t\t %u \t\t %f \n", i + 1, _sensorMatrix.GetAnalogData(i), _sensorMatrix.GetVoltageData(i), _sensorMatrix.GetForceData(i));
-//     }
-//     printf(".-.--..---.-.-.--.--.--.---.--.-\n");
-//
-//     printf("\n.-.--..---MESURE DES CENTRES DE PRESSION.--.---.--.-\n");
-//     printf("Position relative au centre des quadrants sur le siege (cm) \n");
-//     printf("COP Axis \t forcePlate1 \t forcePlate2 \t forcePlate3 \t forcePlate4 \n");
-//     printf("COP (X): \t %f \t %f \t %f \t %f \n", _globalForcePlate.GetFp1COPx(), _globalForcePlate.GetFp2COPx(), _globalForcePlate.GetFp3COPx(), _globalForcePlate.GetFp4COPx());
-//     printf("COP (Y): \t %f \t\%f \t %f \t %f \n", _globalForcePlate.GetFp1COPy(), _globalForcePlate.GetFp2COPy(), _globalForcePlate.GetFp3COPy(), _globalForcePlate.GetFp4COPy());
-//
-//     printf("\nPosition globale relative au centre du siege (cm) \n");
-//     printf("COP Axis \t globalForcePlate \n");
-//     printf("COP (X): \t %f \n", _globalForcePlate.GetCOPx());
-//     printf("COP (Y): \t %f \n", _globalForcePlate.GetCOPy());
-//     printf(".-.--..---.-.-.--.--.--.---.--.-");
-//     printf("\n");
-//
-//     printf("\n.-.--..---DETECTION DUNE PERSONNE SUR LA CHAISE--.---.--.-\n");
-//     printf("Detected Presence : %u \n", sensedPresence);
-//     printf("Detection Threshold : %f \n", _sensorMatrix.GetDetectionThreshold());
-//     printf("Presence verification result : ");
-//
-//     if (_sensorMatrix.IsUserDetected())
-//     {
-//         printf("User detected \n");
-//     }
-//     else
-//     {
-//         printf("No user detected \n");
-//     }
-//     printf(".-.--..---.-.-.--.--.--.---.--.-\n\n");
-// }
-// */
-
-// else if (inSerialChar == 'i')
-// {
-//     //_imu.SetCalibrationArray(fixedImu, 0);
-//     delay(50);
-//     //_imu.SetCalibrationArray(imuMobile, 0);
-//     printf("Calibration des capteurs effectuée.\n");
-//     inSerialChar = 'x';
-// }
-// /*
-// else if (inSerialChar == 'j')
-// {
-//     printf("\nDEBUG RELATIVE PRESSURE IN QUADRANTS START");
-//     printf("\nFunction(s) under test:");
-//     printf("\n DetectRelativePressure()\n");
-//
-//     UpdateForcePlateData();
-//
-//     printf("\n.-.--..---MESURE DES PRESSIONS RELATIVES DES QUADRANTS--.---.--.-\n");
-//     int *relativePressureLevel = _sensorMatrix.DetectRelativePressure();
-//     for (int i = 0; i < 4; i++)
-//     {
-//         printf("\nQuadrant %d : ", (i + 1));
-//         //printf(" %d \n", *(relativePressureLevel + i));
-//         if (*(relativePressureLevel + i) == 1)
-//         {
-//             printf("Really low");
-//         }
-//         else if (*(relativePressureLevel + i) == 2)
-//         {
-//             printf("Low");
-//         }
-//         else if (*(relativePressureLevel + i) == 3)
-//         {
-//             printf("Normal");
-//         }
-//         else if (*(relativePressureLevel + i) == 4)
-//         {
-//             printf("High");
-//         }
-//         else if (*(relativePressureLevel + i) == 5)
-//         {
-//             printf("Really high");
-//         }
-//         else if (*(relativePressureLevel + i) == 0)
-//         {
-//             printf("No pressure data to read");
-//         }
-//         else
-//         {
-//             //Reading error
-//         }
-//     }
-//     printf("\n");
-// }
-// */
-// else if (inSerialChar == 'k')
-// {
-//     int timeSinceEpoch = _datetimeRTC->GetTimeSinceEpoch();
-//     printf("Time since epoch: %d\n", timeSinceEpoch);
-// }
 
 Sensor *DeviceManager::GetSensor(const int device)
 {

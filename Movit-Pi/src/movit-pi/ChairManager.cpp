@@ -186,7 +186,7 @@ void ChairManager::ReadFromServer()
         notifications_settings_t notificationsSettings = _mosquittoBroker->GetNotificationsSettings();
         _deviceManager->UpdateNotificationsSettings(notificationsSettings);
 
-        _snoozeTime = notificationsSettings.snoozeTime * 60.0f;
+        _snoozeTime = notificationsSettings.snoozeTime;
         _deviceManager->GetAlarm()->DeactivateVibration(!notificationsSettings.isVibrationEnabled);
         _deviceManager->GetAlarm()->DeactivateLedBlinking(!notificationsSettings.isLedBlinkingEnabled);
     }
