@@ -65,11 +65,6 @@ bool MotionSensor::InitializeOpticalFlowSensor()
     return true;
 }
 
-std::thread MotionSensor::GetDeltaXYThread()
-{
-    return std::thread([=] { GetDeltaXY(); });
-}
-
 void MotionSensor::GetDeltaXY()
 {
     ReadRangeSensor();

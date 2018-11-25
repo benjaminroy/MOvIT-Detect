@@ -794,7 +794,8 @@ bool DeviceManager::TestDevices()
                     bool isMoving = false;
                     for (uint8_t i = 0; i < testTime; i++)
                     {
-                        printf("%i\n", testTime - i);
+                        motionSensor->GetDeltaXY();
+                        printf("%i", testTime - i);
                         if (motionSensor->IsMoving())
                         {
                             isMoving = true;
