@@ -460,12 +460,15 @@ bool DeviceManager::TestDevices()
         subTestExit = 0;
         while (subTestExit != 1)
         {
-            printf("\nIMUs MODULE\n");
+            printf("\nMODULE IMUs\n");
 
             printf("\n.-.--..--- IMUs TEST MENU .--.---.--.-\n");
             printf("\nTestID\tDescription");
             printf("\n--------------------------------------");
-            printf("\n 1 \t asda validation");
+            printf("\n 1 \t IMU I2C Address validation");
+            printf("\n 2 \t IMU Calibration validation");
+            printf("\n 3 \t IMU Angles validation");
+            printf("\n q \t *Back to Main Test Menu");
             printf("\n--------------------------------------");
             printf("\nEnter a Test No. and press the return key to run test\n");
             testNoID = getchar();
@@ -478,7 +481,7 @@ bool DeviceManager::TestDevices()
             {
                 printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
                 printf("TEST NO. : %c\n", testNoID);
-                printf("asd validation\n");
+                printf("IMU I2C Address validation\n");
                 while (loopTest != 27)
                 {
                     //asdahsd
@@ -495,11 +498,35 @@ bool DeviceManager::TestDevices()
             {
                 printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
                 printf("TEST NO. : %c\n", testNoID);
-                printf("asd validation\n");
+                printf("IMU Calibration validation\n");
                 while (loopTest != 27)
                 {
-                    //asdahsd
+                    CalibrateIMU();
 
+                    printf("\nENTER to restart test sequence\n");
+                    printf("ESC+ENTER to exit test sequence\n");
+                    printf(".-.--..---.-.-.--.--.--.---.--.-\n");
+                    loopTest = getchar();
+                }
+                getchar();
+                break;
+            }
+            case '3':
+            {
+                printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
+                printf("TEST NO. : %c\n", testNoID);
+                printf("IMU Angles validation\n");
+                while (loopTest != 27)
+                {
+                    for (int i = 0; i < 5; i++)
+                    {
+                        int angleTest = 10 * (i + 1);
+                        printf("\nReading %i : INCLINE mobileIMU AT %i deg\n", (i + 1), angleTest);
+                        printf("ENTER when IMU is at desired angle");
+                        getchar();
+                        _backSeatAngle = _backSeatAngleTracker.GetBackSeatAngle();
+                        printf("IMU measured angle : %i deg\n\n", _backSeatAngle);
+                    }
                     printf("\nENTER to restart test sequence\n");
                     printf("ESC+ENTER to exit test sequence\n");
                     printf(".-.--..---.-.-.--.--.--.---.--.-\n");
@@ -511,7 +538,6 @@ bool DeviceManager::TestDevices()
             case 'q':
             {
                 subTestExit = 1;
-                moduleID = 0;
                 break;
             }
             default:
@@ -521,6 +547,7 @@ bool DeviceManager::TestDevices()
             break;
             }
         }
+        break;
     }
     case '4':
     {
