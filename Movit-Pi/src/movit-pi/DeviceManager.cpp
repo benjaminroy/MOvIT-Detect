@@ -551,6 +551,7 @@ bool DeviceManager::TestDevices()
     }
     case '4':
     {
+        ForceSensor forceSensor;
         subTestExit = 0;
         while (subTestExit != 1)
         {
@@ -575,21 +576,23 @@ bool DeviceManager::TestDevices()
             {
             case '1':
             {
+                MAX11611 max11611;
+                uint16_t max11611Data[PRESSURE_SENSOR_COUNT];
                 printf("\n.-.--..---.-.-.--.--.--.---.--.-\n");
                 printf("TEST NO. : %c\n", testNoID);
                 printf("Force sensors (ADC) validation\n");
                 while (loopTest != 27)
                 {
-                    _max11611.GetData(PRESSURE_SENSOR_COUNT, _max11611Data);
+                    max11611.GetData(PRESSURE_SENSOR_COUNT, max11611Data);
                     for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
                     {
-                        _forceSensor.SetAnalogData(i, _max11611Data[i]);
+                        forceSensor.SetAnalogData(i, max11611Data[i]);
                     }
                     printf("\nFORCE SENSORS VALUES\n");
                     printf("Sensor Number \t Analog value\n");
                     for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
                     {
-                        printf("Sensor No: %i \t %i\n", i + 1, (_forceSensor.GetAnalogData(i)));
+                        printf("Sensor No: %i \t %i\n", i + 1, (forceSensor.GetAnalogData(i)));
                     }
                     printf("\nENTER to repeat test\n");
                     printf("ESC+ENTER to exit test\n");
@@ -612,13 +615,13 @@ bool DeviceManager::TestDevices()
 
                     printf("\nINITIAL OFFSET VALUES\n");
                     printf("Sensor Number\tAnalog Offset\n");
-                    pressure_mat_offset_t forceSensor = pressureMat->GetOffsets();
+                    pressure_mat_offset_t pressureMatOffset = pressureMat->GetOffsets();
                     for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
                     {
-                        printf("Sensor No: %i \t %u \n", i + 1, forceSensor.analogOffset[i]);
+                        printf("Sensor No: %i \t %u \n", i + 1, pressureMatOffset.analogOffset[i]);
                     }
-                    printf("\nSensor mean from calibration : \t %u \n", forceSensor.totalSensorMean);
-                    printf("Detection Threshold : %f \n", forceSensor.detectionThreshold);
+                    printf("\nSensor mean from calibration : \t %u \n", pressureMatOffset.totalSensorMean);
+                    printf("Detection Threshold : %f \n", pressureMatOffset.detectionThreshold);
 
                     printf("\nENTER to repeat test\n");
                     printf("ESC+ENTER to exit test\n");
@@ -637,21 +640,21 @@ bool DeviceManager::TestDevices()
                 {
                     PressureMat *pressureMat = PressureMat::GetInstance();
                     pressureMat->Update();
-                    pressure_mat_offset_t forceSensor = pressureMat->GetOffsets();
+                    pressure_mat_offset_t pressureMatOffset = pressureMat->GetOffsets();
                     uint16_t sensedPresence = 0;
 
                     for (uint8_t i = 0; i < PRESSURE_SENSOR_COUNT; i++)
                     {
-                        sensedPresence += forceSensor.analogOffset[i];
+                        sensedPresence += pressureMatOffset.analogOffset[i];
                     }
                     if (PRESSURE_SENSOR_COUNT != 0)
                     {
                         sensedPresence /= PRESSURE_SENSOR_COUNT;
                     }
                     printf("\nSensed presence (mean(Analog Value)) = %i\n", sensedPresence);
-                    printf("Detection Threshold set to : %f \n", forceSensor.detectionThreshold);
+                    printf("Detection Threshold set to : %f \n", pressureMatOffset.detectionThreshold);
                     printf("Presence detection result : ");
-                    if (_forceSensor.IsUserDetected())
+                    if (forceSensor.IsUserDetected())
                     {
                         printf("User detected \n");
                     }
